@@ -217,47 +217,65 @@ else
     echo "Migration'lar çalıştırılacak..."
 fi
 
-# 11. Docker Compose ile Servisleri Başlatma
-echo -e "${YELLOW}🐳 Docker servisleri başlatılıyor...${NC}"
+# 11. Docker Compose Production Dosyası Oluşturma
+echo -e "${YELLOW}🐳 Docker Compose production dosyası oluşturuluyor...${NC}"
 
-# docker-compose.yml'de DB servisini kaldır (sunucu PostgreSQL kullanıyoruz)
-# Geçici olarak DB servisini comment out edelim
-sed -i 's/^  db:/  # db:/' docker-compose.yml
-sed -i 's/^    image: postgres:16-alpine/#    image: postgres:16-alpine/' docker-compose.yml
-sed -i 's/^    container_name: teknik_servis_db/#    container_name: teknik_servis_db/' docker-compose.yml
-sed -i 's/^    environment:/#    environment:/' docker-compose.yml
-sed -i 's/^      POSTGRES_USER:/#      POSTGRES_USER:/' docker-compose.yml
-sed -i 's/^      POSTGRES_PASSWORD:/#      POSTGRES_PASSWORD:/' docker-compose.yml
-sed -i 's/^      POSTGRES_DB:/#      POSTGRES_DB:/' docker-compose.yml
-sed -i 's/^    volumes:/#    volumes:/' docker-compose.yml
-sed -i 's/^      - db_data:/#      - db_data:/' docker-compose.yml
-sed -i 's/^    ports:/#    ports:/' docker-compose.yml
-sed -i 's/^      - "${DB_PORT:-5432}:5432"/#      - "${DB_PORT:-5432}:5432"/' docker-compose.yml
-sed -i 's/^    healthcheck:/#    healthcheck:/' docker-compose.yml
-sed -i 's/^      test:/#      test:/' docker-compose.yml
-sed -i 's/^      interval:/#      interval:/' docker-compose.yml
-sed -i 's/^      timeout:/#      timeout:/' docker-compose.yml
-sed -i 's/^      retries:/#      retries:/' docker-compose.yml
-sed -i 's/^    networks:/#    networks:/' docker-compose.yml
-sed -i 's/^      - app_network/#      - app_network/' docker-compose.yml
+# Production docker-compose dosyası oluştur (sadece API ve Frontend, DB yok)
+cat > docker-compose.prod.yml << 'DOCKEREOF'
+version: "3.9"
 
-# API servisinin depends_on kısmını kaldır
-sed -i 's/^    depends_on:/#    depends_on:/' docker-compose.yml
-sed -i 's/^      db:/#      db:/' docker-compose.yml
-sed -i 's/^        condition: service_healthy/#        condition: service_healthy/' docker-compose.yml
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: teknik_servis_api
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend:/app
+      - uploads_prod:/app/uploads
+      - backups_prod:/app/backups
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4 --no-access-log
+    networks:
+      - app_network
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
-# DATABASE_URL'i güncelle (sunucu PostgreSQL için)
-sed -i "s|DATABASE_URL=postgresql://\${DB_USER:-app}:\${DB_PASSWORD:-app_password}@db:5432/\${DB_NAME:-teknik_servis}|DATABASE_URL=postgresql://\${DB_USER}:\${DB_PASSWORD}@localhost:5432/\${DB_NAME}|" docker-compose.yml
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: teknik_servis_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - app_network
+    restart: unless-stopped
 
-# API servisinin environment kısmını güncelle
-sed -i 's/- DATABASE_URL=/# - DATABASE_URL=/' docker-compose.yml
+volumes:
+  uploads_prod:
+    driver: local
+  backups_prod:
+    driver: local
 
-# Volumes kısmından db_data'yı kaldır
-sed -i 's/^  db_data:/#  db_data:/' docker-compose.yml
-sed -i 's/^    driver: local/#    driver: local/' docker-compose.yml
+networks:
+  app_network:
+    driver: bridge
+DOCKEREOF
 
-# Docker Compose ile servisleri başlat
-docker compose up -d --build
+echo -e "${GREEN}✅ Docker Compose production dosyası oluşturuldu${NC}"
+
+# 12. Docker Compose ile Servisleri Başlatma
+echo -e "${YELLOW}🐳 Docker servisleri başlatılıyor (sadece API ve Frontend)...${NC}"
+
+# Docker Compose ile servisleri başlat (production compose dosyası ile)
+docker compose -f docker-compose.prod.yml up -d --build
 
 echo -e "${GREEN}✅ Docker servisleri başlatıldı${NC}"
 
