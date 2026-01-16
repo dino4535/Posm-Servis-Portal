@@ -125,8 +125,8 @@ SECRET_KEY=$(openssl rand -hex 32)
 
 # .env dosyası oluştur
 cat > .env << EOF
-# Database - Sunucu PostgreSQL
-DATABASE_URL=postgresql://app:${DB_PASSWORD}@localhost:5432/teknik_servis
+# Database - Sunucu PostgreSQL (Docker container'dan erişim için host.docker.internal kullanılacak)
+DATABASE_URL=postgresql://app:${DB_PASSWORD}@host.docker.internal:5432/teknik_servis
 DB_USER=app
 DB_PASSWORD=${DB_PASSWORD}
 DB_NAME=teknik_servis
