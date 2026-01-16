@@ -139,7 +139,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 REFRESH_TOKEN_EXPIRE_DAYS=7
 
 # CORS - Production domain'lerinizi ekleyin
-CORS_ORIGINS_STR=https://yourdomain.com,https://www.yourdomain.com
+CORS_ORIGINS_STR=http://teknik.dinogida.com.tr:5173,http://77.83.37.247:5173,http://localhost:5173
 
 # File Upload
 UPLOAD_DIR=uploads
