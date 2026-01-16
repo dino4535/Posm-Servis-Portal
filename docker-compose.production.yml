@@ -69,7 +69,7 @@ services:
       dockerfile: Dockerfile
     container_name: teknik_servis_frontend_prod
     ports:
-      - "127.0.0.1:80:80"
+      - "5173:80"
     depends_on:
       - api
     networks:

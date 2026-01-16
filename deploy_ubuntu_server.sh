@@ -162,7 +162,7 @@ RATE_LIMIT_PER_MINUTE=60
 
 # Ports
 API_PORT=8001
-FRONTEND_PORT=80
+FRONTEND_PORT=5173
 EOF
 
 echo -e "${GREEN}✅ .env dosyası oluşturuldu${NC}"
@@ -251,7 +251,7 @@ services:
       dockerfile: Dockerfile
     container_name: teknik_servis_frontend
     ports:
-      - "80:80"
+      - "5173:80"
     depends_on:
       - api
     networks:
@@ -300,7 +300,7 @@ echo -e "${YELLOW}🔥 Firewall yapılandırılıyor...${NC}"
 
 if command -v ufw &> /dev/null; then
     sudo ufw allow 22/tcp   # SSH
-    sudo ufw allow 80/tcp   # HTTP
+    sudo ufw allow 5173/tcp # Frontend
     sudo ufw allow 443/tcp  # HTTPS
     sudo ufw allow 8001/tcp # API (opsiyonel, reverse proxy kullanıyorsanız kapatın)
     
@@ -345,7 +345,7 @@ echo ""
 echo -e "${YELLOW}⚠️  Bu bilgileri güvenli bir yerde saklayın!${NC}"
 echo ""
 echo -e "${GREEN}🌐 Erişim Bilgileri:${NC}"
-echo -e "   Frontend: http://${SERVER_IP}"
+echo -e "   Frontend: http://${SERVER_IP}:5173"
 echo -e "   API: http://localhost:8001 (sadece sunucu üzerinden)"
 echo -e "   API Docs: http://localhost:8001/docs (sunucu üzerinden)"
 echo ""
