@@ -302,7 +302,7 @@ if command -v ufw &> /dev/null; then
     sudo ufw allow 22/tcp   # SSH
     sudo ufw allow 80/tcp   # HTTP
     sudo ufw allow 443/tcp  # HTTPS
-    sudo ufw allow 8000/tcp # API (opsiyonel, reverse proxy kullanıyorsanız kapatın)
+    sudo ufw allow 8001/tcp # API (opsiyonel, reverse proxy kullanıyorsanız kapatın)
     
     read -p "Firewall'u aktif etmek ister misiniz? (y/n): " -n 1 -r
     echo
@@ -346,8 +346,8 @@ echo -e "${YELLOW}⚠️  Bu bilgileri güvenli bir yerde saklayın!${NC}"
 echo ""
 echo -e "${GREEN}🌐 Erişim Bilgileri:${NC}"
 echo -e "   Frontend: http://${SERVER_IP}"
-echo -e "   API: http://${SERVER_IP}:8000 (sadece localhost'tan erişilebilir)"
-echo -e "   API Docs: http://localhost:8000/docs (sunucu üzerinden)"
+echo -e "   API: http://localhost:8001 (sadece sunucu üzerinden)"
+echo -e "   API Docs: http://localhost:8001/docs (sunucu üzerinden)"
 echo ""
 echo -e "${YELLOW}⚠️  Not: API sadece localhost'tan erişilebilir (güvenlik için)${NC}"
 echo -e "   Nginx reverse proxy kullanarak dışarıdan erişim sağlayabilirsiniz"
