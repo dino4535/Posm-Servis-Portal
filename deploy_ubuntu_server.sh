@@ -328,30 +328,26 @@ echo -e "${YELLOW}⏳ PostgreSQL'in hazır olması bekleniyor...${NC}"
 sleep 10
 
 # PostgreSQL container'ında kullanıcı ve veritabanı oluştur
-echo -e "${YELLOW}👤 PostgreSQL kullanıcı ve veritabanı oluşturuluyor...${NC}"
-docker compose -f docker-compose.prod.yml exec -T db psql -U postgres << EOF
--- Kullanıcı oluştur (eğer yoksa)
-DO \$\$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_user WHERE usename = 'app') THEN
-        CREATE USER app WITH PASSWORD '${DB_PASSWORD}';
-    ELSE
-        ALTER USER app WITH PASSWORD '${DB_PASSWORD}';
-    END IF;
-END
-\$\$;
+# Not: POSTGRES_USER environment variable ile belirlenen kullanıcı superuser olur
+echo -e "${YELLOW}👤 PostgreSQL kullanıcı ve veritabanı kontrol ediliyor...${NC}"
 
+# .env dosyasından DB_USER'ı oku
+DB_USER_FROM_ENV=$(grep "^DB_USER=" .env | cut -d '=' -f2)
+
+# PostgreSQL container'ında kullanıcı zaten POSTGRES_USER ile oluşturulmuş olmalı
+# Sadece veritabanı ve yetkileri kontrol edelim
+docker compose -f docker-compose.prod.yml exec -T db psql -U ${DB_USER_FROM_ENV} -d postgres << EOF
 -- Veritabanı oluştur (eğer yoksa)
-SELECT 'CREATE DATABASE teknik_servis OWNER app'
+SELECT 'CREATE DATABASE teknik_servis OWNER ${DB_USER_FROM_ENV}'
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'teknik_servis')\gexec
 
 -- Yetkileri ver
-GRANT ALL PRIVILEGES ON DATABASE teknik_servis TO app;
+GRANT ALL PRIVILEGES ON DATABASE teknik_servis TO ${DB_USER_FROM_ENV};
 \c teknik_servis
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO app;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO app;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO app;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO app;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ${DB_USER_FROM_ENV};
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ${DB_USER_FROM_ENV};
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ${DB_USER_FROM_ENV};
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ${DB_USER_FROM_ENV};
 EOF
 
 # Backup restore (varsa)
