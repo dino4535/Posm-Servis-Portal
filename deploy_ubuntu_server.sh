@@ -301,6 +301,24 @@ echo -e "${GREEN}✅ Docker Compose production dosyası oluşturuldu${NC}"
 # 12. Docker Compose ile Servisleri Başlatma
 echo -e "${YELLOW}🐳 Docker servisleri başlatılıyor (PostgreSQL, API ve Frontend)...${NC}"
 
+# Sunucudaki PostgreSQL servisini durdur (Docker container kullanacağız)
+echo -e "${YELLOW}🛑 Sunucu PostgreSQL servisi durduruluyor...${NC}"
+if sudo systemctl is-active --quiet postgresql 2>/dev/null; then
+    sudo systemctl stop postgresql
+    sudo systemctl disable postgresql
+    echo -e "${GREEN}✅ Sunucu PostgreSQL servisi durduruldu${NC}"
+else
+    echo -e "${GREEN}✅ Sunucu PostgreSQL servisi zaten durdurulmuş${NC}"
+fi
+
+# Port 5432'i kullanan process'i kontrol et ve durdur
+PORT_5432_PID=$(sudo lsof -ti:5432 2>/dev/null || echo "")
+if [ ! -z "$PORT_5432_PID" ]; then
+    echo -e "${YELLOW}⚠️  Port 5432 kullanılıyor (PID: $PORT_5432_PID), durduruluyor...${NC}"
+    sudo kill -9 $PORT_5432_PID 2>/dev/null || true
+    sleep 2
+fi
+
 # Önce DB container'ını başlat
 echo -e "${YELLOW}🗄️  PostgreSQL container başlatılıyor...${NC}"
 docker compose -f docker-compose.prod.yml up -d db
