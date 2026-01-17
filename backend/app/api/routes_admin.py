@@ -18,6 +18,64 @@ import io
 router = APIRouter()
 
 
+# ========== SMTP TEST ==========
+
+@router.post("/test-email")
+async def test_email(
+    to_email: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_admin)
+):
+    """SMTP bağlantısını test et ve test maili gönder (admin only)"""
+    from app.services.notification_service import NotificationService
+    import asyncio
+    
+    try:
+        notification_service = NotificationService(db)
+        
+        subject = "SMTP Test Maili - Teknik Servis Portalı"
+        body_html = """
+        <html>
+        <head>
+            <meta charset="UTF-8">
+        </head>
+        <body style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2 style="color: #4299e1;">SMTP Test Maili</h2>
+            <p>Bu bir test mailidir. SMTP ayarlarınız doğru çalışıyorsa bu maili alıyorsunuz.</p>
+            <p style="color: #10b981; font-weight: bold;">✅ SMTP bağlantısı başarılı!</p>
+        </body>
+        </html>
+        """
+        body_text = "SMTP Test Maili\n\nBu bir test mailidir. SMTP ayarlarınız doğru çalışıyorsa bu maili alıyorsunuz.\n\n✅ SMTP bağlantısı başarılı!"
+        
+        result = await notification_service.send_email(
+            to_email=to_email,
+            subject=subject,
+            body_html=body_html,
+            body_text=body_text
+        )
+        
+        if result:
+            return {
+                "success": True,
+                "message": f"Test maili gönderildi: {to_email}",
+                "note": "Mail gönderildi. Lütfen spam klasörünü de kontrol edin."
+            }
+        else:
+            return {
+                "success": False,
+                "message": "Mail gönderilemedi. Lütfen logları kontrol edin.",
+                "note": "docker logs -f teknik_servis_api komutu ile logları görebilirsiniz."
+            }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Test maili gönderme hatası: {str(e)}"
+        )
+
+
 def require_admin(current_user: dict = Depends(AuthService.get_current_user)):
     """Admin yetkisi kontrolü"""
     if current_user["role"] != "admin":

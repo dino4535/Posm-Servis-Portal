@@ -37,7 +37,12 @@ class NotificationService:
         
         if not smtp_host or not smtp_user or not smtp_password:
             # SMTP ayarları yoksa sadece log
-            print(f"📧 [EMAIL] To: {to_email}, Subject: {subject}")
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"📧 [EMAIL - SMTP AYARLARI YOK] To: {to_email}, Subject: {subject}")
+            logger.warning(f"   SMTP ayarları .env dosyasında tanımlı değil. Mail gönderilmedi, sadece log'a yazıldı.")
+            logger.warning(f"   Gerekli ayarlar: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM")
+            print(f"📧 [EMAIL - SMTP AYARLARI YOK] To: {to_email}, Subject: {subject}")
             print(f"   {body_text or body_html[:200]}")
             return True
         
@@ -94,10 +99,21 @@ class NotificationService:
                     start_tls=True,
                     tls_context=ssl_context  # SSL context ile sertifika doğrulaması kapalı
                 )
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"✅ Email başarıyla gönderildi: {to_email}, Subject: {subject}")
             print(f"✅ Email başarıyla gönderildi: {to_email}")
             return True
         except Exception as e:
-            print(f"❌ Email gönderme hatası: {e}")
+            import logging
+            logger = logging.getLogger(__name__)
+            error_msg = f"❌ Email gönderme hatası: {to_email}, Subject: {subject}, Error: {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            print(error_msg)
+            print(f"   SMTP_HOST: {smtp_host}")
+            print(f"   SMTP_PORT: {smtp_port}")
+            print(f"   SMTP_USER: {smtp_user}")
+            print(f"   SMTP_FROM: {smtp_from}")
             import traceback
             traceback.print_exc()
             return False
