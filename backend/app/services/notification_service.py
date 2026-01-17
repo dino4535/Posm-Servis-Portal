@@ -114,6 +114,17 @@ class NotificationService:
             print(f"   SMTP_PORT: {smtp_port}")
             print(f"   SMTP_USER: {smtp_user}")
             print(f"   SMTP_FROM: {smtp_from}")
+            print(f"   Error Type: {type(e).__name__}")
+            
+            # Özel hata mesajları
+            error_str = str(e).lower()
+            if "authentication" in error_str or "535" in error_str:
+                print(f"   ⚠️  AUTHENTICATION HATASI: Kullanıcı adı veya şifre yanlış olabilir")
+            elif "connection" in error_str or "timeout" in error_str or "refused" in error_str:
+                print(f"   ⚠️  BAĞLANTI HATASI: SMTP sunucusuna bağlanılamıyor. Host/Port kontrol edin")
+            elif "ssl" in error_str or "tls" in error_str:
+                print(f"   ⚠️  SSL/TLS HATASI: Port veya şifreleme ayarları yanlış olabilir")
+            
             import traceback
             traceback.print_exc()
             return False

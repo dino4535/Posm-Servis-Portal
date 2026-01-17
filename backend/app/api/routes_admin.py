@@ -20,6 +20,34 @@ router = APIRouter()
 
 # ========== SMTP TEST ==========
 
+@router.get("/smtp-config")
+async def get_smtp_config(
+    current_user: dict = Depends(require_admin)
+):
+    """SMTP ayarlarını kontrol et (admin only) - şifre hariç"""
+    import os
+    
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_port = os.getenv("SMTP_PORT", "587")
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    smtp_from = os.getenv("SMTP_FROM", smtp_user)
+    
+    config_status = {
+        "SMTP_HOST": smtp_host if smtp_host else "❌ Tanımlı değil",
+        "SMTP_PORT": smtp_port,
+        "SMTP_USER": smtp_user if smtp_user else "❌ Tanımlı değil",
+        "SMTP_PASSWORD": "✅ Tanımlı" if smtp_password else "❌ Tanımlı değil",
+        "SMTP_FROM": smtp_from if smtp_from else "❌ Tanımlı değil",
+        "all_configured": bool(smtp_host and smtp_user and smtp_password)
+    }
+    
+    return {
+        "config": config_status,
+        "note": "Şifre güvenlik nedeniyle gösterilmiyor"
+    }
+
+
 @router.post("/test-email")
 async def test_email(
     to_email: str,
@@ -29,6 +57,24 @@ async def test_email(
     """SMTP bağlantısını test et ve test maili gönder (admin only)"""
     from app.services.notification_service import NotificationService
     import asyncio
+    import os
+    
+    # Önce SMTP ayarlarını kontrol et
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    
+    if not smtp_host or not smtp_user or not smtp_password:
+        return {
+            "success": False,
+            "message": "SMTP ayarları eksik!",
+            "config": {
+                "SMTP_HOST": smtp_host or "❌ Tanımlı değil",
+                "SMTP_USER": smtp_user or "❌ Tanımlı değil",
+                "SMTP_PASSWORD": "❌ Tanımlı değil" if not smtp_password else "✅ Tanımlı"
+            },
+            "note": "Lütfen .env dosyasında SMTP ayarlarını kontrol edin."
+        }
     
     try:
         notification_service = NotificationService(db)
@@ -69,11 +115,14 @@ async def test_email(
             }
     except Exception as e:
         import traceback
+        error_detail = str(e)
         traceback.print_exc()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Test maili gönderme hatası: {str(e)}"
-        )
+        return {
+            "success": False,
+            "message": f"Test maili gönderme hatası: {error_detail}",
+            "error_type": type(e).__name__,
+            "note": "Lütfen logları kontrol edin: docker logs -f teknik_servis_api"
+        }
 
 
 def require_admin(current_user: dict = Depends(AuthService.get_current_user)):
