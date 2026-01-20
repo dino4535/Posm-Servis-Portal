@@ -32,7 +32,7 @@ services:
       - EMAIL_FROM=${EMAIL_FROM}
     volumes:
       - ./backend/src:/app/src:ro
-      - ./backend/uploads:/app/uploads
+      - posm-uploads:/app/uploads
       - backend-node-modules:/app/node_modules
     networks:
       - posm-network
@@ -70,4 +70,8 @@ networks:
 
 volumes:
   backend-node-modules:
+    driver: local
   frontend-node-modules:
+    driver: local
+  posm-uploads:
+    driver: local
