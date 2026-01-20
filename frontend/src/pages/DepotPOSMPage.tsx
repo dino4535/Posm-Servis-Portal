@@ -90,15 +90,30 @@ const DepotPOSMPage = () => {
     });
   }, [posms]);
 
-  // Seçili depo için tüm depot_id'leri bul
+  // Seçili depo için tüm depot_id'leri bul (aynı isim ve koda sahip tüm depo ID'leri)
   const selectedDepotIds = useMemo(() => {
     if (selectedDepot === null) return null;
+    
+    // Seçili depo bilgisini bul
     const selectedDepotInfo = depots.find(d => d.id === selectedDepot);
-    // Eğer bulunduysa depotIds kullan, bulunamadıysa sadece seçili depot_id'yi kullan
-    return selectedDepotInfo && (selectedDepotInfo as any).depotIds 
-      ? (selectedDepotInfo as any).depotIds 
-      : [selectedDepot];
-  }, [selectedDepot, depots]);
+    if (!selectedDepotInfo) {
+      // Eğer bulunamadıysa, sadece seçili depot_id'yi kullan
+      return [selectedDepot];
+    }
+    
+    // Aynı isim ve koda sahip tüm depot_id'leri bul
+    const depotKey = `${selectedDepotInfo.name}|${selectedDepotInfo.code}`;
+    const matchingDepotIds = new Set<number>();
+    
+    posms.forEach((posm) => {
+      const posmKey = `${posm.depot_name.trim()}|${posm.depot_code.trim()}`;
+      if (posmKey === depotKey) {
+        matchingDepotIds.add(posm.depot_id);
+      }
+    });
+    
+    return Array.from(matchingDepotIds);
+  }, [selectedDepot, depots, posms]);
 
   // Filtrelenmiş POSM listesi - memoize edilmiş
   const filteredPosms = useMemo(() => {
@@ -136,9 +151,13 @@ const DepotPOSMPage = () => {
 
   // Özet istatistikleri hesapla - memoize edilmiş (Hooks kuralları: if'den önce olmalı)
   const summaryStats = useMemo(() => {
+    // Benzersiz POSM sayısını hesapla (POSM ismine göre)
+    const uniquePosmNames = new Set(filteredPosms.map(p => p.name.toLowerCase().trim()));
+    const uniquePosmCount = uniquePosmNames.size;
+
     return {
       totalDepots: depots.length,
-      totalPOSM: filteredPosms.length,
+      totalPOSM: uniquePosmCount, // Benzersiz POSM sayısı
       totalHazir: filteredPosms.reduce((sum, p) => sum + p.hazir_adet, 0),
       totalRevize: filteredPosms.reduce((sum, p) => sum + p.revize_adet, 0),
       totalTamir: filteredPosms.reduce((sum, p) => sum + p.tamir_bekleyen, 0),
