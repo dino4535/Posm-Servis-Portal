@@ -80,13 +80,8 @@ const DepotPOSMPage = () => {
       }
     });
     
-    // Array'e çevir ve isme göre sırala (sadece id, name, code döndür)
-    return Array.from(uniqueDepotMap.values()).map(({ id, name, code, depotIds }) => ({
-      id,
-      name,
-      code,
-      depotIds, // Bu bilgiyi sakla ama döndürürken kullan
-    })).sort((a, b) => {
+    // Array'e çevir ve isme göre sırala
+    return Array.from(uniqueDepotMap.values()).sort((a, b) => {
       const nameA = a.name.toLowerCase();
       const nameB = b.name.toLowerCase();
       if (nameA < nameB) return -1;
