@@ -7,6 +7,7 @@ import {
   meController,
   updateProfileController,
   changePasswordController,
+  sendSystemIntroductionEmailController,
 } from '../controllers/authController';
 import { authenticate } from '../middleware/auth';
 
@@ -28,5 +29,6 @@ router.post('/logout-all', authenticate, logoutAllController);
 router.get('/me', authenticate, meController);
 router.put('/profile', authenticate, updateProfileController);
 router.post('/change-password', authenticate, changePasswordController);
+router.post('/send-system-introduction', authenticate, isAdminOrTeknik, sendSystemIntroductionEmailController);
 
 export default router;

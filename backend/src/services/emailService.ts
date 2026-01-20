@@ -308,3 +308,20 @@ export const sendWelcomeEmail = async (
     html,
   });
 };
+
+// Sistem tanıtım e-postası gönderme
+export const sendSystemIntroductionEmail = async (
+  data: {
+    to: string | string[];
+    subject?: string;
+  }
+): Promise<void> => {
+  const { getSystemIntroductionEmailTemplate } = await import('./emailTemplates');
+  const html = getSystemIntroductionEmailTemplate();
+
+  await sendEmail({
+    to: data.to,
+    subject: data.subject || 'POSM Teknik Servis Portalı - Sistem Tanıtımı',
+    html,
+  });
+};

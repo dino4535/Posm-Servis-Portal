@@ -1038,3 +1038,307 @@ export const getWelcomeEmailTemplate = (data: {
 
   return getEmailBaseTemplate('Hoş Geldiniz', content, '#27ae60');
 };
+
+/**
+ * Sistem tanıtım e-postası şablonu
+ */
+export const getSystemIntroductionEmailTemplate = (): string => {
+  // HTML dosyasının içeriğini buraya ekliyoruz
+  return `<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POSM Teknik Servis Portalı - Sistem Tanıtımı</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 28px;
+        }
+        .header p {
+            color: #7f8c8d;
+            margin: 10px 0 0 0;
+            font-size: 16px;
+        }
+        .section {
+            margin: 30px 0;
+        }
+        .section-title {
+            color: #2c3e50;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        .feature-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .feature-title {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .feature-description {
+            color: #555;
+            font-size: 14px;
+        }
+        .image-placeholder {
+            background-color: #ecf0f1;
+            border: 2px dashed #bdc3c7;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 5px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .highlight-box h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .highlight-box p {
+            margin: 0;
+            font-size: 16px;
+            opacity: 0.95;
+        }
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .benefit-item {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 3px solid #4caf50;
+        }
+        .benefit-item strong {
+            color: #2e7d32;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>POSM Teknik Servis Portalı</h1>
+            <p>Dijital Dönüşüm ile Verimliliği Artırın</p>
+        </div>
+
+        <div class="highlight-box">
+            <h2>🎯 Sistem Amacı</h2>
+            <p>POSM Teknik Servis Portalı, teknik servis taleplerinizin dijital ortamda yönetilmesini sağlayan, 
+            stok takibinden raporlamaya kadar tüm süreçleri tek bir platformda birleştiren kapsamlı bir yönetim sistemidir.</p>
+        </div>
+
+        <div class="image-placeholder">
+            [GÖRSELLERİNİZİ BURAYA EKLEYİN]<br>
+            <strong>Görsel 1:</strong> Dashboard Ana Ekran - Tüm taleplerinizi tek bakışta görüntüleyin
+        </div>
+
+        <div class="section">
+            <div class="section-title">📊 Ana Özellikler</div>
+            
+            <div class="feature-box">
+                <div class="feature-title">1. Teknik Servis Talep Yönetimi</div>
+                <div class="feature-description">
+                    • Yeni talep oluşturma ve takip sistemi<br>
+                    • Talep durumu yönetimi (Beklemede, Planlandı, Tamamlandı, İptal)<br>
+                    • Öncelik seviyesi belirleme<br>
+                    • Fotoğraf ekleme ve görüntüleme (Talep oluşturduktan sonra kolay yükleme)<br>
+                    • Talep detayları ve geçmiş takibi<br>
+                    • POSM bilgilerinin taleplerde görüntülenmesi<br>
+                    • Takvim görünümü ile planlama<br>
+                    • Otomatik stok güncelleme (Talep iptal/silme durumunda)
+                </div>
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-title">2. POSM (Point of Sale Material) Yönetimi</div>
+                <div class="feature-description">
+                    • POSM stok takibi (Hazır, Tamir Bekleyen, Revize)<br>
+                    • Depo bazlı stok yönetimi<br>
+                    • <strong>YENİ:</strong> Depolarımdaki POSM'ler - Kullanıcıların tanımlı oldukları depolardaki POSM'leri görüntüleme<br>
+                    • <strong>YENİ:</strong> Depo bazlı filtreleme ve arama özellikleri<br>
+                    • <strong>YENİ:</strong> Özet istatistikler (Toplam Depo, Benzersiz POSM sayısı, Stok durumları)<br>
+                    • POSM transfer işlemleri (Depo arası transfer)<br>
+                    • Otomatik stok güncelleme (Montaj/Demontaj işlemlerinde)<br>
+                    • Toplu POSM ekleme özelliği<br>
+                    • Stok seviyesi uyarıları
+                </div>
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-title">3. Kapsamlı Yönetim Modülleri</div>
+                <div class="feature-description">
+                    • <strong>Bayi Yönetimi:</strong> Bayi bilgileri, konum takibi, toplu içe aktarma<br>
+                    • <strong>Bölge Yönetimi:</strong> Bölge tanımlama ve atama<br>
+                    • <strong>Depo Yönetimi:</strong> Depo bilgileri ve stok merkezleri<br>
+                    • <strong>Kullanıcı Yönetimi:</strong> Rol bazlı yetkilendirme sistemi
+                </div>
+            </div>
+
+            <div class="image-placeholder">
+                [GÖRSELLERİNİZİ BURAYA EKLEYİN]<br>
+                <strong>Görsel 2:</strong> Yeni Talep Oluşturma - Kolay ve hızlı talep girişi
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-title">4. Gelişmiş Raporlama Sistemi</div>
+                <div class="feature-description">
+                    • İstatistiksel raporlar (Talep dağılımı, tamamlanma oranları)<br>
+                    • Özel rapor tasarımı (Sürükle-bırak arayüzü)<br>
+                    • Zamanlanmış raporlar (Otomatik e-posta gönderimi)<br>
+                    • Excel export özelliği<br>
+                    • Filtreleme ve arama seçenekleri
+                </div>
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-title">5. Güvenlik ve İzleme</div>
+                <div class="feature-description">
+                    • JWT tabanlı güvenli kimlik doğrulama<br>
+                    • Rol bazlı erişim kontrolü (Admin, Teknik, Kullanıcı)<br>
+                    • Audit log (Tüm işlemlerin kaydı)<br>
+                    • IP adresi takibi<br>
+                    • Şifre değiştirme ve profil yönetimi
+                </div>
+            </div>
+
+            <div class="image-placeholder">
+                [GÖRSELLERİNİZİ BURAYA EKLEYİN]<br>
+                <strong>Görsel 3:</strong> POSM Yönetimi - Stok takibi ve transfer işlemleri
+            </div>
+
+            <div class="feature-box" style="border-left-color: #e74c3c; background-color: #fff5f5;">
+                <div class="feature-title" style="color: #e74c3c;">🆕 Yeni Özellikler (2026 Güncellemesi)</div>
+                <div class="feature-description">
+                    • <strong>Depolarımdaki POSM'ler Sayfası:</strong> Kullanıcılar artık tanımlı oldukları depolardaki tüm POSM'leri tek ekranda görüntüleyebilir<br>
+                    • <strong>Gelişmiş Filtreleme:</strong> Depo bazlı filtreleme ve arama ile hızlı erişim<br>
+                    • <strong>Özet İstatistikler:</strong> Toplam depo sayısı, benzersiz POSM sayısı ve stok durumları<br>
+                    • <strong>Akıllı Stok Yönetimi:</strong> Talep iptal/silme durumunda otomatik stok geri alma<br>
+                    • <strong>İyileştirilmiş Fotoğraf Yükleme:</strong> Talep oluşturduktan sonra kolay ve hızlı fotoğraf ekleme<br>
+                    • <strong>POSM Bilgisi Görüntüleme:</strong> Taleplerde POSM adı ve detaylarının görüntülenmesi
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">👥 Kullanıcı Rolleri ve Yetkileri</div>
+            
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <strong>🔐 Admin</strong>
+                    Tüm modüllere erişim, kullanıcı yönetimi, sistem ayarları
+                </div>
+                <div class="benefit-item">
+                    <strong>🔧 Teknik</strong>
+                    POSM yönetimi, talep onaylama, transfer işlemleri
+                </div>
+                <div class="benefit-item">
+                    <strong>👤 Kullanıcı</strong>
+                    Talep oluşturma, kendi taleplerini görüntüleme, depolardaki POSM'leri görüntüleme
+                </div>
+                <div class="benefit-item">
+                    <strong>📱 Çoklu Depo</strong>
+                    Kullanıcılar birden fazla depo ile çalışabilir
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">✨ Sistem Avantajları</div>
+            
+            <ul style="color: #555; font-size: 15px;">
+                <li><strong>⏱️ Zaman Tasarrufu:</strong> Manuel süreçlerin dijitalleştirilmesi ile %60'a varan zaman tasarrufu</li>
+                <li><strong>📈 Verimlilik Artışı:</strong> Merkezi yönetim ile operasyonel verimlilikte artış</li>
+                <li><strong>📊 Veri Analizi:</strong> Detaylı raporlama ile karar verme süreçlerini destekleme</li>
+                <li><strong>🔒 Güvenlik:</strong> Güvenli veri saklama ve erişim kontrolü</li>
+                <li><strong>📱 Erişilebilirlik:</strong> Web tabanlı platform, her yerden erişim imkanı</li>
+                <li><strong>🔄 Otomasyon:</strong> Otomatik bildirimler ve stok güncellemeleri</li>
+                <li><strong>📸 Dokümantasyon:</strong> Fotoğraf ekleme ile görsel kanıt saklama</li>
+                <li><strong>📧 Bildirimler:</strong> E-posta ile otomatik bildirim sistemi</li>
+            </ul>
+        </div>
+
+        <div class="highlight-box">
+            <h2>🚀 Hemen Başlayın</h2>
+            <p>Sisteme erişim için: <strong>http://posm.dinogida.com.tr</strong></p>
+            <p style="margin-top: 15px;">
+                <a href="http://posm.dinogida.com.tr" class="cta-button" style="color: white;">Sisteme Giriş Yap</a>
+            </p>
+        </div>
+
+        <div class="footer">
+            <p><strong>POSM Teknik Servis Portalı</strong></p>
+            <p>Dino Gıda - Dijital Dönüşüm Projesi</p>
+            <p style="margin-top: 10px; font-size: 12px;">
+                Bu e-posta otomatik olarak oluşturulmuştur. | © 2026 Oğuz EMÜL. Tüm hakları saklıdır.
+            </p>
+        </div>
+    </div>
+</body>
+</html>`;
+};

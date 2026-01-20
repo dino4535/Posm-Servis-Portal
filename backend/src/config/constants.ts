@@ -37,6 +37,7 @@ export const AUDIT_ACTIONS = {
   DELETE: 'DELETE',
   LOGIN: 'LOGIN',
   LOGOUT: 'LOGOUT',
+  EMAIL_SENT: 'EMAIL_SENT',
 } as const;
 
 export type AuditAction = typeof AUDIT_ACTIONS[keyof typeof AUDIT_ACTIONS];
