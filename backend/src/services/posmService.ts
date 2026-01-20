@@ -63,6 +63,19 @@ export const getAllPOSM = async (depotId?: number): Promise<any[]> => {
   );
 };
 
+export const getPOSMByUserDepots = async (userId: number): Promise<any[]> => {
+  return query<any>(
+    `SELECT p.id, p.name, p.description, p.depot_id, p.hazir_adet, p.tamir_bekleyen, p.revize_adet, p.is_active, p.created_at, p.updated_at,
+            d.id as depot_id, d.name as depot_name, d.code as depot_code
+     FROM POSM p
+     INNER JOIN Depots d ON p.depot_id = d.id
+     INNER JOIN User_Depots ud ON d.id = ud.depot_id
+     WHERE ud.user_id = @userId AND p.is_active = 1 AND d.is_active = 1
+     ORDER BY d.name, p.name`,
+    { userId }
+  );
+};
+
 export const getPOSMById = async (id: number): Promise<POSM> => {
   const posms = await query<POSM>(
     `SELECT id, name, description, depot_id, hazir_adet, tamir_bekleyen, revize_adet, is_active, created_at, updated_at 

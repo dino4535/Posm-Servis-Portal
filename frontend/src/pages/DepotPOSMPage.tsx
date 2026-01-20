@@ -1,0 +1,230 @@
+import { useState, useEffect } from 'react';
+import api from '../services/api';
+import { useToast } from '../context/ToastContext';
+import '../styles/DepotPOSMPage.css';
+
+interface POSM {
+  id: number;
+  name: string;
+  description?: string;
+  depot_id: number;
+  depot_name: string;
+  depot_code: string;
+  hazir_adet: number;
+  tamir_bekleyen: number;
+  revize_adet: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
+const DepotPOSMPage = () => {
+  const { showError } = useToast();
+  const [posms, setPosms] = useState<POSM[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedDepot, setSelectedDepot] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchPOSM();
+  }, []);
+
+  const fetchPOSM = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/posm/my-depots');
+      if (response.data.success) {
+        setPosms(response.data.data);
+      }
+    } catch (error: any) {
+      console.error('POSM yüklenirken hata:', error);
+      showError(error.response?.data?.error || 'POSM\'ler yüklenirken hata oluştu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Depo listesini al (benzersiz)
+  const depots = Array.from(
+    new Map(posms.map((posm) => [posm.depot_id, { id: posm.depot_id, name: posm.depot_name, code: posm.depot_code }])).values()
+  ).sort((a, b) => a.name.localeCompare(b.name));
+
+  // Filtrelenmiş POSM listesi
+  const filteredPosms = posms.filter((posm) => {
+    const matchesDepot = selectedDepot === null || posm.depot_id === selectedDepot;
+    const matchesSearch = 
+      posm.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (posm.description && posm.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      posm.depot_name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesDepot && matchesSearch;
+  });
+
+  // Depo bazında grupla
+  const groupedByDepot = filteredPosms.reduce((acc, posm) => {
+    const depotKey = posm.depot_id;
+    if (!acc[depotKey]) {
+      acc[depotKey] = {
+        depot_id: posm.depot_id,
+        depot_name: posm.depot_name,
+        depot_code: posm.depot_code,
+        posms: [],
+      };
+    }
+    acc[depotKey].posms.push(posm);
+    return acc;
+  }, {} as Record<number, { depot_id: number; depot_name: string; depot_code: string; posms: POSM[] }>);
+
+  const groupedPosms = Object.values(groupedByDepot).sort((a, b) => 
+    a.depot_name.localeCompare(b.depot_name)
+  );
+
+  if (loading) {
+    return (
+      <div className="depot-posm-page">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="depot-posm-page">
+      <div className="page-header">
+        <h1>Depolarımdaki POSM'ler</h1>
+        <p className="page-description">
+          Tanımlı olduğunuz depolardaki POSM envanter bilgilerini görüntüleyebilirsiniz.
+        </p>
+      </div>
+
+      <div className="filters-section">
+        <div className="filter-group">
+          <label htmlFor="depot-filter">Depo Filtresi:</label>
+          <select
+            id="depot-filter"
+            value={selectedDepot || ''}
+            onChange={(e) => setSelectedDepot(e.target.value ? parseInt(e.target.value, 10) : null)}
+            className="filter-select"
+          >
+            <option value="">Tüm Depolar</option>
+            {depots.map((depot) => (
+              <option key={depot.id} value={depot.id}>
+                {depot.name} ({depot.code})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label htmlFor="search-filter">Ara:</label>
+          <input
+            id="search-filter"
+            type="text"
+            placeholder="POSM adı, açıklama veya depo adı ile ara..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="filter-input"
+          />
+        </div>
+      </div>
+
+      {filteredPosms.length === 0 ? (
+        <div className="no-data">
+          <p>
+            {posms.length === 0
+              ? 'Tanımlı olduğunuz depolarda POSM bulunmamaktadır.'
+              : 'Arama kriterlerinize uygun POSM bulunamadı.'}
+          </p>
+        </div>
+      ) : (
+        <div className="posm-groups">
+          {groupedPosms.map((group) => (
+            <div key={group.depot_id} className="depot-group">
+              <div className="depot-header">
+                <h2>{group.depot_name}</h2>
+                <span className="depot-code">{group.depot_code}</span>
+                <span className="posm-count">({group.posms.length} POSM)</span>
+              </div>
+              <div className="posm-table-container">
+                <table className="posm-table">
+                  <thead>
+                    <tr>
+                      <th>POSM Adı</th>
+                      <th>Açıklama</th>
+                      <th>Hazır Adet</th>
+                      <th>Revize Adet</th>
+                      <th>Tamir Bekleyen</th>
+                      <th>Toplam</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {group.posms.map((posm) => {
+                      const total = posm.hazir_adet + posm.revize_adet + posm.tamir_bekleyen;
+                      return (
+                        <tr key={posm.id}>
+                          <td className="posm-name">{posm.name}</td>
+                          <td className="posm-description">
+                            {posm.description || '-'}
+                          </td>
+                          <td className="stock-cell hazir">
+                            {posm.hazir_adet}
+                          </td>
+                          <td className="stock-cell revize">
+                            {posm.revize_adet}
+                          </td>
+                          <td className="stock-cell tamir">
+                            {posm.tamir_bekleyen}
+                          </td>
+                          <td className="stock-cell total">
+                            <strong>{total}</strong>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="summary-section">
+        <div className="summary-card">
+          <h3>Özet</h3>
+          <div className="summary-stats">
+            <div className="stat-item">
+              <span className="stat-label">Toplam Depo:</span>
+              <span className="stat-value">{depots.length}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Toplam POSM:</span>
+              <span className="stat-value">{filteredPosms.length}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Toplam Hazır:</span>
+              <span className="stat-value">
+                {filteredPosms.reduce((sum, p) => sum + p.hazir_adet, 0)}
+              </span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Toplam Revize:</span>
+              <span className="stat-value">
+                {filteredPosms.reduce((sum, p) => sum + p.revize_adet, 0)}
+              </span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Toplam Tamir Bekleyen:</span>
+              <span className="stat-value">
+                {filteredPosms.reduce((sum, p) => sum + p.tamir_bekleyen, 0)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DepotPOSMPage;

@@ -109,22 +109,30 @@ const Sidebar = () => {
           )}
         </MenuSection>
 
-        {(isAdmin || isTeknik) && (
-          <MenuSection title="POSM İşlemleri" icon="📦">
-            <li>
-              <NavLink to="/posm-management">
-                <span className="menu-icon">📦</span>
-                POSM Yönetimi
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/posm-transfers">
-                <span className="menu-icon">🔄</span>
-                POSM Transfer
-              </NavLink>
-            </li>
-          </MenuSection>
-        )}
+        <MenuSection title="POSM" icon="📦">
+          <li>
+            <NavLink to="/depot-posm">
+              <span className="menu-icon">📦</span>
+              Depolarımdaki POSM'ler
+            </NavLink>
+          </li>
+          {(isAdmin || isTeknik) && (
+            <>
+              <li>
+                <NavLink to="/posm-management">
+                  <span className="menu-icon">⚙️</span>
+                  POSM Yönetimi
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/posm-transfers">
+                  <span className="menu-icon">🔄</span>
+                  POSM Transfer
+                </NavLink>
+              </li>
+            </>
+          )}
+        </MenuSection>
 
         {isAdmin && (
           <>

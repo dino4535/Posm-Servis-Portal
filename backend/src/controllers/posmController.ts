@@ -8,6 +8,7 @@ import {
   updatePOSM,
   updatePOSMStock,
   deletePOSM,
+  getPOSMByUserDepots,
 } from '../services/posmService';
 import { createAuditLog } from '../services/auditService';
 import { AUDIT_ACTIONS } from '../config/constants';
@@ -23,6 +24,20 @@ export const getAllPOSMController = async (
       ? parseInt(req.query.depot_id as string, 10)
       : undefined;
     const posms = await getAllPOSM(depotId);
+    res.json({ success: true, data: posms });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMyDepotsPOSMController = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user!.id;
+    const posms = await getPOSMByUserDepots(userId);
     res.json({ success: true, data: posms });
   } catch (error) {
     next(error);

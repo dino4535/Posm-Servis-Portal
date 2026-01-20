@@ -6,6 +6,7 @@ import NewRequestPage from './pages/NewRequestPage';
 import MyRequestsPage from './pages/MyRequestsPage';
 import AllRequestsPage from './pages/AllRequestsPage';
 import POSMManagementPage from './pages/POSMManagementPage';
+import DepotPOSMPage from './pages/DepotPOSMPage';
 import UserManagementPage from './pages/UserManagementPage';
 import DepotManagementPage from './pages/DepotManagementPage';
 import TerritoryManagementPage from './pages/TerritoryManagementPage';
@@ -80,6 +81,14 @@ const AppRoutes = () => {
             <AdminOrTeknikRoute>
               <POSMManagementPage />
             </AdminOrTeknikRoute>
+          }
+        />
+        <Route
+          path="depot-posm"
+          element={
+            <PrivateRoute>
+              <DepotPOSMPage />
+            </PrivateRoute>
           }
         />
         <Route

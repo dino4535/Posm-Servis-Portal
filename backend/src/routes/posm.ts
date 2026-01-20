@@ -10,6 +10,7 @@ import {
   updatePOSMStockController,
   deletePOSMController,
   bulkInsertPosmToAllDepotsController,
+  getMyDepotsPOSMController,
 } from '../controllers/posmController';
 import { isAdmin } from '../middleware/authorize';
 
@@ -17,6 +18,7 @@ const router = Router();
 
 router.use(authenticate);
 
+router.get('/my-depots', getMyDepotsPOSMController);
 router.get('/', getAllPOSMController);
 router.get('/:id', getPOSMByIdController);
 router.get('/:id/stock', getPOSMStockController);
