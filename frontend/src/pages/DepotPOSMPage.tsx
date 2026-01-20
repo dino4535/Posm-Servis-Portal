@@ -46,36 +46,35 @@ const DepotPOSMPage = () => {
 
   // Depo listesini al (benzersiz) - memoize edilmiş
   const depots = useMemo(() => {
-    const depotMap = new Map<string, { id: number; name: string; code: string }>();
+    // Önce tüm depo bilgilerini topla
+    const depotMap = new Map<number, { id: number; name: string; code: string }>();
     
     posms.forEach((posm) => {
-      // Hem depot_id hem de name+code kombinasyonunu key olarak kullan
-      // Bu şekilde aynı depot_id'ye sahip farklı isimler olsa bile tekrar olmaz
-      const key = `${posm.depot_id}-${posm.depot_name}-${posm.depot_code}`;
-      
-      if (!depotMap.has(key)) {
-        // Aynı depot_id'ye sahip başka bir kayıt var mı kontrol et
-        const existingDepot = Array.from(depotMap.values()).find(d => d.id === posm.depot_id);
-        
-        if (!existingDepot) {
-          depotMap.set(key, {
-            id: posm.depot_id,
-            name: posm.depot_name,
-            code: posm.depot_code,
-          });
-        }
+      // Sadece depot_id'ye göre benzersiz hale getir
+      // Aynı depot_id için ilk gelen depot_name ve depot_code'u kullan
+      if (!depotMap.has(posm.depot_id)) {
+        depotMap.set(posm.depot_id, {
+          id: posm.depot_id,
+          name: posm.depot_name || '',
+          code: posm.depot_code || '',
+        });
       }
     });
     
-    // Depot ID'ye göre benzersiz hale getir
-    const uniqueDepots = new Map<number, { id: number; name: string; code: string }>();
-    Array.from(depotMap.values()).forEach(depot => {
-      if (!uniqueDepots.has(depot.id)) {
-        uniqueDepots.set(depot.id, depot);
-      }
-    });
+    // Array'e çevir ve sırala
+    const uniqueDepots = Array.from(depotMap.values());
     
-    return Array.from(uniqueDepots.values()).sort((a, b) => a.name.localeCompare(b.name));
+    // İsim ve kod boş olanları filtrele
+    const validDepots = uniqueDepots.filter(d => d.name && d.code);
+    
+    // İsme göre sırala
+    return validDepots.sort((a, b) => {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    });
   }, [posms]);
 
   // Filtrelenmiş POSM listesi - memoize edilmiş
