@@ -9,7 +9,7 @@ const Footer = () => {
           <span className="developer-name">Oğuz EMÜL</span>
           <span className="footer-separator"> | </span>
           <span className="footer-description">
-            © {new Date().getFullYear()} Oğuz EMÜL. Bu sistemin tüm fikri hakları, tasarım ve yazılım geliştirme hakları Oğuz EMÜL'e aittir.
+            © {new Date().getFullYear()} Oğuz EMÜL. Tüm hakları saklıdır.
           </span>
         </p>
       </div>
