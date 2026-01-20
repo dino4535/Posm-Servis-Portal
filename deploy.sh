@@ -72,16 +72,13 @@ else
     echo "✓ Docker Compose zaten kurulu"
 fi
 
-# 3. Eski container'ları durdur (varsa)
+# 3. Eski container'ları temizle
 echo ""
-echo "3. Eski container'lar kontrol ediliyor..."
-if [ "$(docker ps -aq -f name=posm-backend)" ] || [ "$(docker ps -aq -f name=posm-frontend)" ]; then
-    echo "Eski container'lar durduruluyor..."
-    docker-compose down 2>/dev/null || true
-    echo "✓ Eski container'lar durduruldu"
-else
-    echo "✓ Eski container bulunamadı"
-fi
+echo "3. Eski container'lar temizleniyor..."
+docker-compose down 2>/dev/null || true
+docker ps -a | grep posm | awk '{print $1}' | xargs -r docker rm -f 2>/dev/null || true
+docker container prune -f 2>/dev/null || true
+echo "✓ Eski container'lar temizlendi"
 
 # 4. Docker Compose ile build ve başlat
 echo ""
