@@ -209,11 +209,13 @@ export const getRequestById = async (
             d.name as bayi_adi, d.code as bayi_kodu, d.latitude as bayi_latitude, d.longitude as bayi_longitude,
             t.name as territory_name, t.code as territory_code,
             dep.name as depot_name, dep.code as depot_code,
+            p.name as posm_name,
             u.name as user_name, u.email as user_email
      FROM Requests r
      LEFT JOIN Dealers d ON r.dealer_id = d.id
      LEFT JOIN Territories t ON r.territory_id = t.id
      LEFT JOIN Depots dep ON r.depot_id = dep.id
+     LEFT JOIN POSM p ON r.posm_id = p.id
      LEFT JOIN Users u ON r.user_id = u.id
      WHERE ${whereConditions}`,
     params
