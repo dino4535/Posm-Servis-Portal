@@ -146,11 +146,8 @@ const NewRequestPage = () => {
       });
       formData.append('request_id', createdRequestId.toString());
 
-      await api.post('/photos', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // FormData için Content-Type header'ını kaldır - browser otomatik ekler (boundary ile)
+      await api.post('/photos', formData);
 
       // Fotoğraflar yüklendi, listeyi temizle
       setSelectedFiles([]);

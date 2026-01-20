@@ -21,6 +21,11 @@ api.interceptors.request.use(
       }
       config.headers.Authorization = `Bearer ${token}`;
       
+      // FormData istekleri için Content-Type header'ını kaldır (browser otomatik ekler boundary ile)
+      if (config.data instanceof FormData) {
+        delete config.headers['Content-Type'];
+      }
+      
       // Blob istekleri için Content-Type header'ını kaldır (browser otomatik ayarlar)
       if (config.responseType === 'blob') {
         delete config.headers['Content-Type'];

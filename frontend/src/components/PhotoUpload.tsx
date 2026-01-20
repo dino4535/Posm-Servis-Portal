@@ -127,10 +127,8 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ requestId, onUploadComplete }
       });
       formData.append('request_id', requestId.toString());
 
+      // FormData için Content-Type header'ını kaldır - browser otomatik ekler (boundary ile)
       const response = await api.post('/photos', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
             const percentCompleted = Math.round(
