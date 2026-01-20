@@ -116,11 +116,20 @@ else
 fi
 echo ""
 
-# 7. Docker volume'ları oluştur
-echo "7. Docker volume'ları oluşturuluyor..."
+# 7. Docker volume'ları kontrol et
+echo "7. Docker volume'ları kontrol ediliyor..."
 docker volume create posm_backend-node-modules 2>/dev/null || echo "Volume zaten var: posm_backend-node-modules"
 docker volume create posm_frontend-node-modules 2>/dev/null || echo "Volume zaten var: posm_frontend-node-modules"
-docker volume create posm_uploads 2>/dev/null || echo "Volume zaten var: posm_uploads"
+
+# posm_data volume'unun var olduğunu kontrol et
+if docker volume inspect posm_data &>/dev/null; then
+    echo "✓ posm_data volume bulundu"
+else
+    echo "⚠ UYARI: posm_data volume bulunamadı!"
+    echo "Lütfen önce şu komutu çalıştırın:"
+    echo "  docker volume create posm_data"
+    exit 1
+fi
 echo "✓ Volume'lar hazır"
 echo ""
 
