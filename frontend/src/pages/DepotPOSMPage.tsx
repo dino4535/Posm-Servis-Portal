@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import '../styles/DepotPOSMPage.css';
@@ -44,39 +44,45 @@ const DepotPOSMPage = () => {
     }
   };
 
-  // Depo listesini al (benzersiz)
-  const depots = Array.from(
-    new Map(posms.map((posm) => [posm.depot_id, { id: posm.depot_id, name: posm.depot_name, code: posm.depot_code }])).values()
-  ).sort((a, b) => a.name.localeCompare(b.name));
+  // Depo listesini al (benzersiz) - memoize edilmiş
+  const depots = useMemo(() => {
+    return Array.from(
+      new Map(posms.map((posm) => [posm.depot_id, { id: posm.depot_id, name: posm.depot_name, code: posm.depot_code }])).values()
+    ).sort((a, b) => a.name.localeCompare(b.name));
+  }, [posms]);
 
-  // Filtrelenmiş POSM listesi
-  const filteredPosms = posms.filter((posm) => {
-    const matchesDepot = selectedDepot === null || posm.depot_id === selectedDepot;
-    const matchesSearch = 
-      posm.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (posm.description && posm.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      posm.depot_name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesDepot && matchesSearch;
-  });
+  // Filtrelenmiş POSM listesi - memoize edilmiş
+  const filteredPosms = useMemo(() => {
+    return posms.filter((posm) => {
+      const matchesDepot = selectedDepot === null || posm.depot_id === selectedDepot;
+      const matchesSearch = 
+        posm.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (posm.description && posm.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        posm.depot_name.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesDepot && matchesSearch;
+    });
+  }, [posms, selectedDepot, searchTerm]);
 
-  // Depo bazında grupla
-  const groupedByDepot = filteredPosms.reduce((acc, posm) => {
-    const depotKey = posm.depot_id;
-    if (!acc[depotKey]) {
-      acc[depotKey] = {
-        depot_id: posm.depot_id,
-        depot_name: posm.depot_name,
-        depot_code: posm.depot_code,
-        posms: [],
-      };
-    }
-    acc[depotKey].posms.push(posm);
-    return acc;
-  }, {} as Record<number, { depot_id: number; depot_name: string; depot_code: string; posms: POSM[] }>);
+  // Depo bazında grupla - memoize edilmiş
+  const groupedPosms = useMemo(() => {
+    const groupedByDepot = filteredPosms.reduce((acc, posm) => {
+      const depotKey = posm.depot_id;
+      if (!acc[depotKey]) {
+        acc[depotKey] = {
+          depot_id: posm.depot_id,
+          depot_name: posm.depot_name,
+          depot_code: posm.depot_code,
+          posms: [],
+        };
+      }
+      acc[depotKey].posms.push(posm);
+      return acc;
+    }, {} as Record<number, { depot_id: number; depot_name: string; depot_code: string; posms: POSM[] }>);
 
-  const groupedPosms = Object.values(groupedByDepot).sort((a, b) => 
-    a.depot_name.localeCompare(b.depot_name)
-  );
+    return Object.values(groupedByDepot).sort((a, b) => 
+      a.depot_name.localeCompare(b.depot_name)
+    );
+  }, [filteredPosms]);
 
   if (loading) {
     return (
@@ -107,7 +113,7 @@ const DepotPOSMPage = () => {
             onChange={(e) => setSelectedDepot(e.target.value ? parseInt(e.target.value, 10) : null)}
             className="filter-select"
           >
-            <option value="">Tüm Depolar</option>
+            <option value="">Depo Bazlı</option>
             {depots.map((depot) => (
               <option key={depot.id} value={depot.id}>
                 {depot.name} ({depot.code})
