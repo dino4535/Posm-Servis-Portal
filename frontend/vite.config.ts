@@ -9,13 +9,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  define: {
+    // HMR'ı tamamen devre dışı bırakmak için
+    'import.meta.hot': 'undefined',
+  },
   server: {
     host: '0.0.0.0', // Tüm network interface'lerden erişime izin ver
     port: 4005,
     strictPort: false,
-    // HMR devre dışı (WebSocket hatası önlemek için)
-    // Production'da HMR gerekli değil, development'ta da Nginx proxy sorunları nedeniyle kapatıyoruz
+    // HMR tamamen devre dışı (WebSocket hatası önlemek için)
     hmr: false,
+    ws: false, // WebSocket server'ı tamamen kapat
     allowedHosts: [
       'posm.dinogida.com.tr',
       'localhost',
