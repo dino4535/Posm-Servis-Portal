@@ -14,30 +14,33 @@ echo ""
 echo "1. Çalışan container'lar durduruluyor..."
 docker-compose down 2>/dev/null || true
 
-# 2. Eski container'ları temizle
+# 2. Eski container'ları temizle (daha agresif)
 echo ""
 echo "2. Eski container'lar temizleniyor..."
-docker ps -a --filter "name=posm" --format "{{.ID}}" | xargs -r docker rm -f 2>/dev/null || true
+docker ps -a --filter "name=posm" --format "{{.ID}}" | while read id; do
+  if [ ! -z "$id" ]; then
+    echo "  Container siliniyor: $id"
+    docker rm -f "$id" 2>/dev/null || true
+  fi
+done
 
-# 3. Eski image'ları temizle (opsiyonel - dikkatli kullanın)
+# Tüm posm container'larını bul ve sil
+docker ps -a | grep posm | awk '{print $1}' | xargs -r docker rm -f 2>/dev/null || true
+
+# 3. Bozuk container referanslarını temizle
 echo ""
-echo "3. Eski image'lar kontrol ediliyor..."
-# docker images --filter "reference=posm*" --format "{{.ID}}" | xargs -r docker rmi -f 2>/dev/null || true
+echo "3. Bozuk container referansları temizleniyor..."
+docker container prune -f 2>/dev/null || true
 
-# 4. Docker system prune (opsiyonel - dikkatli kullanın)
-# echo ""
-# echo "4. Docker system temizleniyor..."
-# docker system prune -f
-
-# 5. Volume'leri kontrol et ve gerekirse temizle
+# 4. Volume'leri kontrol et
 echo ""
 echo "4. Volume'ler kontrol ediliyor..."
 docker volume ls | grep posm || echo "Volume bulunamadı"
 
-# 6. Docker Compose'u yeniden başlat
+# 5. Docker Compose'u yeniden başlat (no-deps ile)
 echo ""
 echo "5. Container'lar yeniden build ediliyor ve başlatılıyor..."
-docker-compose up -d --build --force-recreate
+docker-compose up -d --build --force-recreate --no-deps
 
 echo ""
 echo "6. Container durumu kontrol ediliyor..."
