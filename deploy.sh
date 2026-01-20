@@ -105,6 +105,18 @@ sleep 5
 BACKEND_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3005/health || echo "000")
 FRONTEND_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4005 || echo "000")
 
+# 8. Nginx kurulumu (opsiyonel)
+echo ""
+echo "8. Nginx kurulumu kontrol ediliyor..."
+if [ -f "setup-nginx.sh" ]; then
+    echo "Nginx kurulum script'i bulundu."
+    echo "Nginx'i yapılandırmak için şu komutu çalıştırın:"
+    echo "  chmod +x setup-nginx.sh"
+    echo "  ./setup-nginx.sh"
+else
+    echo "Nginx kurulum script'i bulunamadı."
+fi
+
 echo ""
 echo "=========================================="
 echo "Deploy Tamamlandı!"

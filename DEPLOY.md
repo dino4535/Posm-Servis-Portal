@@ -119,9 +119,27 @@ curl http://localhost:3005/health
 curl http://localhost:4005
 ```
 
-## 6. Nginx Reverse Proxy (Opsiyonel)
+## 6. Nginx Reverse Proxy Kurulumu
 
-Eğer domain üzerinden erişmek istiyorsanız:
+### Otomatik Kurulum (Önerilen)
+
+```bash
+# Script'i çalıştırılabilir yap
+chmod +x setup-nginx.sh
+
+# Nginx'i yapılandır
+./setup-nginx.sh
+```
+
+Bu script otomatik olarak:
+- Nginx'i kurar (yoksa)
+- Konfigürasyon dosyasını kopyalar
+- Varsayılan Nginx sayfasını devre dışı bırakır
+- Nginx'i yeniden başlatır
+
+### Manuel Kurulum
+
+Eğer manuel olarak yapılandırmak istiyorsanız:
 
 ```bash
 sudo nano /etc/nginx/sites-available/posm
