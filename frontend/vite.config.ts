@@ -13,14 +13,9 @@ export default defineConfig({
     host: '0.0.0.0', // Tüm network interface'lerden erişime izin ver
     port: 4005,
     strictPort: false,
-    // Production'da HMR devre dışı (WebSocket hatası önlemek için)
-    // Development'ta manuel olarak aktif edilebilir
-    hmr: process.env.NODE_ENV === 'development' ? {
-      host: 'posm.dinogida.com.tr',
-      protocol: 'ws',
-      port: 80,
-      clientPort: 80,
-    } : false,
+    // HMR devre dışı (WebSocket hatası önlemek için)
+    // Production'da HMR gerekli değil, development'ta da Nginx proxy sorunları nedeniyle kapatıyoruz
+    hmr: false,
     allowedHosts: [
       'posm.dinogida.com.tr',
       'localhost',
