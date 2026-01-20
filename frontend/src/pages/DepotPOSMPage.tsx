@@ -103,13 +103,17 @@ const DepotPOSMPage = () => {
   const selectedDepotIds = useMemo(() => {
     if (selectedDepot === null) return null;
     
+    console.log('selectedDepot değeri:', selectedDepot, 'depots:', depots);
+    
     // Seçili depo bilgisini bul
     const selectedDepotInfo = depots.find(d => d.id === selectedDepot);
     if (!selectedDepotInfo) {
-      console.warn('Seçili depo bulunamadı:', selectedDepot);
+      console.warn('Seçili depo bulunamadı:', selectedDepot, 'Mevcut depots:', depots.map(d => ({ id: d.id, name: d.name })));
       // Eğer bulunamadıysa, direkt seçili depot_id'yi kullan
       return [selectedDepot];
     }
+    
+    console.log('Seçili depo bilgisi bulundu:', selectedDepotInfo);
     
     // Aynı isim ve koda sahip tüm depot_id'leri topla
     const depotKey = `${selectedDepotInfo.name.trim()}|${selectedDepotInfo.code.trim()}`;
@@ -117,21 +121,25 @@ const DepotPOSMPage = () => {
     
     // Önce selectedDepotInfo'daki depotIds'i ekle
     if (selectedDepotInfo.depotIds && selectedDepotInfo.depotIds.length > 0) {
+      console.log('selectedDepotInfo.depotIds:', selectedDepotInfo.depotIds);
       selectedDepotInfo.depotIds.forEach(id => matchingDepotIds.add(id));
     } else {
+      console.log('selectedDepotInfo.depotIds yok, id kullanılıyor:', selectedDepotInfo.id);
       matchingDepotIds.add(selectedDepotInfo.id);
     }
     
     // Aynı isim/koda sahip tüm POSM'lerden depot_id'leri topla
+    let matchedCount = 0;
     posms.forEach((posm) => {
       const posmKey = `${posm.depot_name.trim()}|${posm.depot_code.trim()}`;
       if (posmKey === depotKey) {
         matchingDepotIds.add(posm.depot_id);
+        matchedCount++;
       }
     });
     
     const result = Array.from(matchingDepotIds);
-    console.log('Seçili depo ID\'leri:', result, 'Depot:', selectedDepotInfo.name);
+    console.log('Seçili depo ID\'leri:', result, 'Depot:', selectedDepotInfo.name, 'Eşleşen POSM sayısı:', matchedCount);
     return result;
   }, [selectedDepot, depots, posms]);
 
@@ -139,11 +147,21 @@ const DepotPOSMPage = () => {
   const filteredPosms = useMemo(() => {
     console.log('Filtreleme başlıyor - selectedDepotIds:', selectedDepotIds, 'Toplam POSM:', posms.length);
     
+    // Debug: İlk birkaç POSM'in depot_id'sini göster
+    if (posms.length > 0) {
+      const sampleDepotIds = posms.slice(0, 5).map(p => p.depot_id);
+      console.log('Örnek POSM depot_id\'leri:', sampleDepotIds);
+    }
+    
     const filtered = posms.filter((posm) => {
       // Depo filtresi: Seçili depo varsa, depot_id'yi kontrol et
       let matchesDepot = true;
       if (selectedDepotIds !== null && selectedDepotIds.length > 0) {
         matchesDepot = selectedDepotIds.includes(posm.depot_id);
+        if (!matchesDepot && selectedDepotIds.length > 0) {
+          // Debug: Neden eşleşmediğini göster
+          console.log(`POSM ${posm.name} (depot_id: ${posm.depot_id}) eşleşmedi. Aranan ID'ler:`, selectedDepotIds);
+        }
       }
       
       // Arama filtresi
@@ -156,6 +174,9 @@ const DepotPOSMPage = () => {
     });
     
     console.log('Filtreleme tamamlandı - Sonuç sayısı:', filtered.length);
+    if (filtered.length > 0) {
+      console.log('Filtrelenmiş POSM\'ler:', filtered.slice(0, 3).map(p => `${p.name} (depot_id: ${p.depot_id})`));
+    }
     return filtered;
   }, [posms, selectedDepotIds, searchTerm]);
 
