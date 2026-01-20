@@ -952,9 +952,7 @@ export const cancelRequest = async (
 ): Promise<Request> => {
   const request = await getRequestById(id);
 
-  if (request.durum === REQUEST_STATUS.TAMAMLANDI) {
-    throw new ValidationError('Tamamlanmış talepler iptal edilemez');
-  }
+  // Tamamlanmış talepler iptal edilebilir (stok geri alma ile)
 
   if (request.durum === REQUEST_STATUS.IPTAL) {
     throw new ValidationError('Talep zaten iptal edilmiş');
@@ -964,11 +962,53 @@ export const cancelRequest = async (
 
   // POSM stok geri alma: Eğer talep iptal ediliyorsa ve POSM varsa, stokları geri al
   if (request.posm_id) {
-    // İptal edilen talep için POSM stoklarını geri al
-    // Eğer talep oluşturulurken hazir_adet düşürüldüyse ve revize_adet artırıldıysa, geri al
-    if (oldStatus === REQUEST_STATUS.BEKLEMEDE || oldStatus === REQUEST_STATUS.PLANLANDI) {
-      // Sadece Montaj için hazir_adet düşürülmüştü, onu geri al
+    const isMontajOrDemontaj = request.yapilacak_is === REQUEST_TYPES.MONTAJ || request.yapilacak_is === REQUEST_TYPES.DEMONTAJ;
+    
+    if (oldStatus === REQUEST_STATUS.TAMAMLANDI) {
+      // Tamamlanmış talep iptal ediliyor - tamamlanma işleminde yapılan güncellemeleri geri al
+      if (isMontajOrDemontaj) {
+        // Tamamlanma işleminde: revize_adet - 1, tamir_bekleyen + 1
+        // Geri al: revize_adet + 1, tamir_bekleyen - 1
+        await query(
+          `UPDATE POSM 
+           SET revize_adet = revize_adet + 1,
+               tamir_bekleyen = CASE WHEN tamir_bekleyen > 0 THEN tamir_bekleyen - 1 ELSE 0 END,
+               updated_at = ${getTurkeyDateSQL()}
+           WHERE id = @posmId`,
+          { posmId: request.posm_id }
+        );
+      } else {
+        // Diğer işler: tamamlanma işleminde sadece revize_adet - 1
+        // Geri al: revize_adet + 1
+        await query(
+          `UPDATE POSM 
+           SET revize_adet = revize_adet + 1,
+               updated_at = ${getTurkeyDateSQL()}
+           WHERE id = @posmId`,
+          { posmId: request.posm_id }
+        );
+      }
+      
+      // Ayrıca oluşturulduğunda yapılan güncellemeleri de geri al
       if (request.yapilacak_is === REQUEST_TYPES.MONTAJ) {
+        // Oluşturulduğunda: hazir_adet - 1, revize_adet + 1
+        // Tamamlanma işleminde: revize_adet - 1 (yukarıda + 1 yaptık, net: 0)
+        // Geri al: hazir_adet + 1
+        await query(
+          `UPDATE POSM 
+           SET hazir_adet = hazir_adet + 1,
+               updated_at = ${getTurkeyDateSQL()}
+           WHERE id = @posmId`,
+          { posmId: request.posm_id }
+        );
+      }
+      // Demontaj için oluşturulduğunda sadece revize_adet + 1 yapılmıştı,
+      // tamamlanma işleminde - 1 yapıldı, yukarıda + 1 yaptık, net: +1 (doğru)
+    } else if (oldStatus === REQUEST_STATUS.BEKLEMEDE || oldStatus === REQUEST_STATUS.PLANLANDI) {
+      // Beklemede veya Planlandı durumundaki talep iptal ediliyor - oluşturulduğunda yapılan güncellemeleri geri al
+      if (request.yapilacak_is === REQUEST_TYPES.MONTAJ) {
+        // Oluşturulduğunda: hazir_adet - 1, revize_adet + 1
+        // Geri al: hazir_adet + 1, revize_adet - 1
         await query(
           `UPDATE POSM 
            SET hazir_adet = hazir_adet + 1,
