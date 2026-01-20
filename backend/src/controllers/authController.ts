@@ -6,7 +6,6 @@ import { createAuditLog } from '../services/auditService';
 import { AUDIT_ACTIONS } from '../config/constants';
 import { getUserById, updateUser } from '../services/userService';
 import { getTurkeyDateSQL } from '../utils/dateHelper';
-import { sendSystemIntroductionEmail } from '../services/emailService';
 
 export const loginController = async (
   req: Request,
@@ -273,49 +272,6 @@ export const changePasswordController = async (
     );
 
     return res.json({ success: true, message: 'Şifre başarıyla değiştirildi' });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-// Sistem tanıtım e-postası gönderme (Admin ve Teknik)
-export const sendSystemIntroductionEmailController = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { to, subject } = req.body;
-
-    if (!to) {
-      return res.status(400).json({
-        success: false,
-        error: 'Alıcı e-posta adresi gereklidir',
-      });
-    }
-
-    // E-posta gönder
-    await sendSystemIntroductionEmail({
-      to: Array.isArray(to) ? to : [to],
-      subject: subject || 'POSM Teknik Servis Portalı - Sistem Tanıtımı',
-    });
-
-    // Audit log
-    await createAuditLog(
-      {
-        action: AUDIT_ACTIONS.EMAIL_SENT,
-        entity_type: 'SystemIntroduction',
-        entity_id: null,
-        description: `Sistem tanıtım e-postası gönderildi: ${Array.isArray(to) ? to.join(', ') : to}`,
-        ip_address: getRealIpAddress(req),
-      },
-      req
-    );
-
-    return res.json({
-      success: true,
-      message: 'Sistem tanıtım e-postası başarıyla gönderildi',
-    });
   } catch (error) {
     return next(error);
   }
