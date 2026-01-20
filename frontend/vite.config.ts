@@ -10,7 +10,14 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0', // Tüm network interface'lerden erişime izin ver
     port: 4005,
+    strictPort: false,
+    allowedHosts: [
+      'posm.dinogida.com.tr',
+      'localhost',
+      '.dinogida.com.tr', // Tüm subdomain'ler
+    ],
     proxy: {
       '/api': {
         target: 'http://localhost:3005',
