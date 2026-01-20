@@ -48,20 +48,27 @@ const DepotPOSMPage = () => {
   // Depo ismi ve kodu kombinasyonuna göre benzersiz hale getir
   const depots = useMemo(() => {
     // İsim ve kod kombinasyonuna göre benzersiz hale getir
-    const uniqueDepotMap = new Map<string, { id: number; name: string; code: string }>();
+    // Aynı isim ve koda sahip tüm depot_id'leri topla
+    const uniqueDepotMap = new Map<string, { id: number; name: string; code: string; depotIds: number[] }>();
     
     posms.forEach((posm) => {
       if (posm.depot_name && posm.depot_code) {
         // İsim ve kod kombinasyonunu key olarak kullan
         const displayKey = `${posm.depot_name.trim()}|${posm.depot_code.trim()}`;
         
-        // Eğer bu kombinasyon daha önce eklenmemişse ekle
         if (!uniqueDepotMap.has(displayKey)) {
           uniqueDepotMap.set(displayKey, {
-            id: posm.depot_id,
+            id: posm.depot_id, // İlk gelen depot_id'yi ana ID olarak kullan
             name: posm.depot_name.trim(),
             code: posm.depot_code.trim(),
+            depotIds: [posm.depot_id],
           });
+        } else {
+          // Aynı isim ve koda sahip başka bir depot_id varsa ekle
+          const existing = uniqueDepotMap.get(displayKey)!;
+          if (!existing.depotIds.includes(posm.depot_id)) {
+            existing.depotIds.push(posm.depot_id);
+          }
         }
       }
     });
@@ -76,17 +83,25 @@ const DepotPOSMPage = () => {
     });
   }, [posms]);
 
+  // Seçili depo için tüm depot_id'leri bul
+  const selectedDepotIds = useMemo(() => {
+    if (selectedDepot === null) return null;
+    const selectedDepotInfo = depots.find(d => d.id === selectedDepot);
+    return selectedDepotInfo ? selectedDepotInfo.depotIds : [selectedDepot];
+  }, [selectedDepot, depots]);
+
   // Filtrelenmiş POSM listesi - memoize edilmiş
   const filteredPosms = useMemo(() => {
     return posms.filter((posm) => {
-      const matchesDepot = selectedDepot === null || posm.depot_id === selectedDepot;
+      // Depo filtresi: Seçili depo varsa, o depo'nun tüm depot_id'lerini kontrol et
+      const matchesDepot = selectedDepotIds === null || selectedDepotIds.includes(posm.depot_id);
       const matchesSearch = 
         posm.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (posm.description && posm.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
         posm.depot_name.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesDepot && matchesSearch;
     });
-  }, [posms, selectedDepot, searchTerm]);
+  }, [posms, selectedDepotIds, searchTerm]);
 
   // Depo bazında grupla - memoize edilmiş
   const groupedPosms = useMemo(() => {
@@ -179,8 +194,8 @@ const DepotPOSMPage = () => {
             className="filter-select"
           >
             <option value="">Depo Bazlı</option>
-            {depots.map((depot) => (
-              <option key={depot.id} value={depot.id}>
+            {depots.map((depot, index) => (
+              <option key={`${depot.id}-${index}`} value={depot.id}>
                 {depot.name} ({depot.code})
               </option>
             ))}
