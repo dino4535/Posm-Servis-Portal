@@ -66,6 +66,7 @@ const AllRequestsPage = () => {
             <tr>
               <th>Talep No</th>
               <th>Kullanıcı</th>
+              <th>POSM</th>
               <th>İstenen Tarih</th>
               <th>Planlanan Tarih</th>
               <th>Yapılacak İş</th>
@@ -84,6 +85,7 @@ const AllRequestsPage = () => {
                 <tr key={request.id}>
                   <td>{request.request_no}</td>
                   <td>{request.user_id}</td>
+                  <td>{request.posm_name || (request.posm_id ? `POSM ID: ${request.posm_id}` : '-')}</td>
                   <td>{formatDate(request.istenen_tarih)}</td>
                   <td>{request.planlanan_tarih ? formatDate(request.planlanan_tarih) : '-'}</td>
                   <td>{request.yapilacak_is}</td>

@@ -25,6 +25,7 @@ interface Request {
   depot_id?: number;
   depot_name?: string;
   posm_id?: number;
+  posm_name?: string;
   yapilacak_is_detay?: string;
 }
 
@@ -172,6 +173,7 @@ const MyRequestsPage = () => {
                 <th>Bayi Kodu</th>
                 <th>Depo</th>
                 <th>Territory</th>
+                <th>POSM</th>
                 <th>İstenen Tarih</th>
                 <th>Planlanan Tarih</th>
                 <th>Yapılacak İş</th>
@@ -195,6 +197,7 @@ const MyRequestsPage = () => {
                     <td>{request.bayi_kodu || '-'}</td>
                     <td>{request.depot_name || '-'}</td>
                     <td>{request.territory_name || request.territory_code || '-'}</td>
+                    <td>{request.posm_name || (request.posm_id ? `POSM ID: ${request.posm_id}` : '-')}</td>
                     <td>{request.istenen_tarih ? formatDate(request.istenen_tarih) : '-'}</td>
                     <td>{request.planlanan_tarih ? formatDate(request.planlanan_tarih) : '-'}</td>
                     <td>{request.yapilacak_is}</td>
