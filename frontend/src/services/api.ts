@@ -29,12 +29,9 @@ api.interceptors.request.use(
       // Blob istekleri için Content-Type header'ını kaldır (browser otomatik ayarlar)
       if (config.responseType === 'blob') {
         delete config.headers['Content-Type'];
-        // Debug: Blob isteği için token gönderildiğini logla
-        console.log('[API] Blob isteği - Token gönderiliyor:', config.url, 'Token var:', !!token, 'Headers:', config.headers);
       }
-    } else {
-      console.warn('[API] Token bulunamadı, istek:', config.url);
     }
+    // Token yoksa sessizce devam et (login sayfası gibi public endpoint'ler için normal)
     return config;
   },
   (error) => {

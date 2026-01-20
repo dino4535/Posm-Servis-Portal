@@ -87,10 +87,8 @@ const MyRequestsPage = () => {
   }, [filters]);
 
   const handleRequestClick = (request: Request) => {
-    console.log('handleRequestClick called', request);
     setSelectedRequest(request);
     setShowModal(true);
-    console.log('Modal state set to true');
   };
 
   const handleCloseModal = () => {
@@ -273,7 +271,6 @@ const MyRequestsPage = () => {
 
       {showModal && selectedRequest && (
         <>
-          {console.log('Rendering RequestDetailModal', { showModal, selectedRequest })}
           <RequestDetailModal
             request={selectedRequest}
             onClose={handleCloseModal}

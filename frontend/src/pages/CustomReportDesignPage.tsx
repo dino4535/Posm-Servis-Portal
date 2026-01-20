@@ -435,9 +435,6 @@ const CustomReportDesignPage = () => {
       const queryConfig = buildQueryConfig();
       const pivotConfigData = buildPivotConfigForSave();
 
-      console.log('Query Config:', JSON.stringify(queryConfig, null, 2));
-      console.log('Pivot Config:', JSON.stringify(pivotConfigData, null, 2));
-
       // Test için geçici template oluştur
       // query_config zaten object olarak gönderilmeli, backend stringify edecek
       const tempTemplate = {

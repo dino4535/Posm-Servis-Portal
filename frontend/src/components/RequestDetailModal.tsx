@@ -40,7 +40,6 @@ interface RequestDetailModalProps {
 }
 
 const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClose, onUpdate }) => {
-  console.log('RequestDetailModal rendered', { request });
   const { isAdmin, isTeknik } = useAuth();
   const { showSuccess, showError, showWarning } = useToast();
   const [isEditing, setIsEditing] = useState(false);
@@ -322,8 +321,6 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
   const canComplete = (isAdmin || isTeknik) && currentRequest.durum === 'Planlandı';
   const canCancel = currentRequest.durum === 'Beklemede' || currentRequest.durum === 'Planlandı';
   const canDelete = isAdmin;
-
-  console.log('RequestDetailModal returning JSX', { isEditing, request: currentRequest });
   
   return (
     <>

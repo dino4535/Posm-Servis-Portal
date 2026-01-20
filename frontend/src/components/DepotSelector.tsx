@@ -26,6 +26,13 @@ const DepotSelector: React.FC<DepotSelectorProps> = ({
 
   useEffect(() => {
     const fetchDepots = async () => {
+      // Token kontrolü - sadece authenticated kullanıcılar için
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await api.get('/depots');
         if (response.data.success) {
@@ -35,8 +42,11 @@ const DepotSelector: React.FC<DepotSelectorProps> = ({
             onDepotChange(response.data.data[0].id);
           }
         }
-      } catch (error) {
-        console.error('Depolar yüklenirken hata:', error);
+      } catch (error: any) {
+        // 401 hatası beklenen bir durum (token yoksa), sessizce geç
+        if (error.response?.status !== 401) {
+          console.error('Depolar yüklenirken hata:', error);
+        }
       } finally {
         setLoading(false);
       }
