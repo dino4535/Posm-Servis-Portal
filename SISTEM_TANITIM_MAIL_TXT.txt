@@ -1,0 +1,192 @@
+═══════════════════════════════════════════════════════════════
+    POSM TEKNİK SERVİS PORTALI - SİSTEM TANITIMI
+═══════════════════════════════════════════════════════════════
+
+Sayın Yöneticiler ve Kullanıcılar,
+
+Dino Gıda olarak, teknik servis operasyonlarımızı dijitalleştirmek 
+ve verimliliği artırmak amacıyla geliştirdiğimiz "POSM Teknik Servis 
+Portalı" sistemini sizlere tanıtmaktan mutluluk duyuyoruz.
+
+═══════════════════════════════════════════════════════════════
+🎯 SİSTEM AMACI
+═══════════════════════════════════════════════════════════════
+
+POSM Teknik Servis Portalı, teknik servis taleplerinizin dijital 
+ortamda yönetilmesini sağlayan, stok takibinden raporlamaya kadar 
+tüm süreçleri tek bir platformda birleştiren kapsamlı bir yönetim 
+sistemidir.
+
+Sistem, manuel süreçleri otomatikleştirerek operasyonel verimliliği 
+artırmayı, merkezi yönetim ile kontrolü güçlendirmeyi ve veri 
+analizi ile karar verme süreçlerini desteklemeyi hedeflemektedir.
+
+═══════════════════════════════════════════════════════════════
+📊 ANA ÖZELLİKLER
+═══════════════════════════════════════════════════════════════
+
+1. TEKNİK SERVİS TALEP YÖNETİMİ
+   • Yeni talep oluşturma ve takip sistemi
+   • Talep durumu yönetimi (Beklemede, Planlandı, Tamamlandı, İptal)
+   • Öncelik seviyesi belirleme
+   • Fotoğraf ekleme ve görüntüleme
+   • Talep detayları ve geçmiş takibi
+   • Takvim görünümü ile planlama
+
+2. POSM (POINT OF SALE MATERIAL) YÖNETİMİ
+   • POSM stok takibi (Hazır, Tamir Bekleyen, Revize)
+   • Depo bazlı stok yönetimi
+   • POSM transfer işlemleri (Depo arası transfer)
+   • Otomatik stok güncelleme
+   • Toplu POSM ekleme özelliği
+   • Stok seviyesi uyarıları
+
+3. KAPSAMLI YÖNETİM MODÜLLERİ
+   • Bayi Yönetimi: Bayi bilgileri, konum takibi, toplu içe aktarma
+   • Bölge Yönetimi: Bölge tanımlama ve atama
+   • Depo Yönetimi: Depo bilgileri ve stok merkezleri
+   • Kullanıcı Yönetimi: Rol bazlı yetkilendirme sistemi
+
+4. GELİŞMİŞ RAPORLAMA SİSTEMİ
+   • İstatistiksel raporlar (Talep dağılımı, tamamlanma oranları)
+   • Özel rapor tasarımı (Sürükle-bırak arayüzü)
+   • Zamanlanmış raporlar (Otomatik e-posta gönderimi)
+   • Excel export özelliği
+   • Filtreleme ve arama seçenekleri
+
+5. GÜVENLİK VE İZLEME
+   • JWT tabanlı güvenli kimlik doğrulama
+   • Rol bazlı erişim kontrolü (Admin, Teknik, Kullanıcı)
+   • Audit log (Tüm işlemlerin kaydı)
+   • IP adresi takibi
+   • Şifre değiştirme ve profil yönetimi
+
+═══════════════════════════════════════════════════════════════
+👥 KULLANICI ROLLERİ VE YETKİLERİ
+═══════════════════════════════════════════════════════════════
+
+🔐 ADMIN
+   • Tüm modüllere erişim
+   • Kullanıcı yönetimi
+   • Sistem ayarları
+   • Raporlama ve analiz
+   • Audit log görüntüleme
+
+🔧 TEKNİK
+   • POSM yönetimi
+   • Talep onaylama ve tamamlama
+   • Transfer işlemleri
+   • Stok güncellemeleri
+
+👤 KULLANICI
+   • Talep oluşturma
+   • Kendi taleplerini görüntüleme
+   • Profil yönetimi
+
+📱 ÇOKLU DEPO
+   • Kullanıcılar birden fazla depo ile çalışabilir
+   • Depo bazlı filtreleme
+
+═══════════════════════════════════════════════════════════════
+💼 İŞ SÜREÇLERİ VE KULLANIM SENARYOLARI
+═══════════════════════════════════════════════════════════════
+
+TALEP OLUŞTURMA SÜRECİ:
+1. Kullanıcı sisteme giriş yapar
+2. "Yeni Talep" sayfasından talep oluşturur
+3. Depo, bölge, bayi ve yapılacak iş bilgilerini girer
+4. Gerekirse fotoğraf ekler
+5. Talep otomatik olarak ilgili teknik ekibe iletilir
+
+POSM TRANSFER SÜRECİ:
+1. Teknik ekip transfer talebi oluşturur
+2. Kaynak ve hedef depo seçilir
+3. Transfer onaylandıktan sonra stok otomatik güncellenir
+4. E-posta bildirimi gönderilir
+5. Transfer tamamlandığında sistem kaydı tutulur
+
+═══════════════════════════════════════════════════════════════
+✨ SİSTEM AVANTAJLARI
+═══════════════════════════════════════════════════════════════
+
+⏱️  Zaman Tasarrufu
+    Manuel süreçlerin dijitalleştirilmesi ile %60'a varan zaman tasarrufu
+
+📈 Verimlilik Artışı
+    Merkezi yönetim ile operasyonel verimlilikte artış
+
+📊 Veri Analizi
+    Detaylı raporlama ile karar verme süreçlerini destekleme
+
+🔒 Güvenlik
+    Güvenli veri saklama ve erişim kontrolü
+
+📱 Erişilebilirlik
+    Web tabanlı platform, her yerden erişim imkanı
+
+🔄 Otomasyon
+    Otomatik bildirimler ve stok güncellemeleri
+
+📸 Dokümantasyon
+    Fotoğraf ekleme ile görsel kanıt saklama
+
+📧 Bildirimler
+    E-posta ile otomatik bildirim sistemi
+
+═══════════════════════════════════════════════════════════════
+🛠️ TEKNİK ÖZELLİKLER
+═══════════════════════════════════════════════════════════════
+
+Backend:     Node.js + Express, TypeScript, SQL Server
+Frontend:    React + TypeScript, Modern UI/UX
+Güvenlik:    JWT Authentication, Role-based Access Control
+Deployment:  Docker containerization, Nginx reverse proxy
+Veritabanı:  Microsoft SQL Server
+Dosya Yönetimi: Güvenli dosya yükleme ve saklama
+
+═══════════════════════════════════════════════════════════════
+📋 KULLANIM SENARYOLARI
+═══════════════════════════════════════════════════════════════
+
+SENARYO 1: YENİ MONTAJ TALEBİ
+Bayiden gelen montaj talebi sisteme girilir. Sistem otomatik olarak 
+ilgili depodaki POSM stokunu kontrol eder. Stok yeterli ise talep 
+onaylanır ve teknik ekibe atanır. İşlem tamamlandığında fotoğraflar 
+eklenir ve talep kapatılır.
+
+SENARYO 2: DEPO ARASI TRANSFER
+Bir depoda eksik olan POSM için diğer depodan transfer talebi 
+oluşturulur. Sistem transferi onaylar, stokları otomatik günceller 
+ve ilgili taraflara e-posta bildirimi gönderir. Transfer 
+tamamlandığında kayıt tutulur.
+
+SENARYO 3: RAPORLAMA VE ANALİZ
+Yönetim ekibi, özel rapor tasarımcısını kullanarak ihtiyaç duyduğu 
+raporları oluşturur. Raporlar zamanlanabilir ve otomatik olarak 
+e-posta ile gönderilebilir. Excel export ile detaylı analiz 
+yapılabilir.
+
+═══════════════════════════════════════════════════════════════
+🚀 HEMEN BAŞLAYIN
+═══════════════════════════════════════════════════════════════
+
+Sisteme erişim için: http://posm.dinogida.com.tr
+
+Kullanıcı adı ve şifreniz IT departmanı tarafından size 
+iletilmiştir. İlk girişte şifrenizi değiştirmeniz önerilir.
+
+═══════════════════════════════════════════════════════════════
+📞 DESTEK VE İLETİŞİM
+═══════════════════════════════════════════════════════════════
+
+Sistem ile ilgili sorularınız, önerileriniz veya teknik destek 
+ihtiyacınız için lütfen IT departmanı ile iletişime geçiniz.
+
+═══════════════════════════════════════════════════════════════
+
+POSM Teknik Servis Portalı
+Dino Gıda - Dijital Dönüşüm Projesi
+
+© 2024
+
+═══════════════════════════════════════════════════════════════
