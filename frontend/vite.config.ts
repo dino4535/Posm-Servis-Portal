@@ -16,6 +16,7 @@ export default defineConfig({
     hmr: {
       host: 'posm.dinogida.com.tr',
       protocol: 'ws',
+      port: 80,
       clientPort: 80,
     },
     allowedHosts: [
