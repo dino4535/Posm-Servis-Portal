@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { login, logout, logoutAllSessions } from '../services/authService';
+import { login, logout, logoutAllSessions, comparePassword, hashPassword } from '../services/authService';
+import { getRealIpAddress } from '../utils/ip_helper';
+import { AuthRequest } from '../middleware/auth';
 import { createAuditLog } from '../services/auditService';
 import { AUDIT_ACTIONS } from '../config/constants';
-import { AuthRequest } from '../middleware/auth';
-import { getRealIpAddress } from '../utils/ip_helper';
+import { getUserById, updateUser } from '../services/userService';
+import { getTurkeyDateSQL } from '../utils/dateHelper';
 
 export const loginController = async (
   req: Request,
@@ -73,34 +75,22 @@ export const logoutController = async (
   next: NextFunction
 ) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
+    const token = req.headers.authorization?.substring(7);
+    if (token) {
       await logout(token);
-
-      // Audit log
-      try {
-        const realIp = await getRealIpAddress(req);
-        await createAuditLog(
-          {
-            user_id: req.user!.id,
-            action: AUDIT_ACTIONS.LOGOUT,
-            ip_address: realIp,
-            user_agent: req.get('user-agent'),
-          },
-          req
-        );
-      } catch (auditError) {
-        console.error('Audit log hatası:', auditError);
-      }
     }
 
-    res.json({
-      success: true,
-      message: 'Çıkış yapıldı',
-    });
+    await createAuditLog(
+      {
+        user_id: req.user?.id,
+        action: AUDIT_ACTIONS.LOGOUT,
+      },
+      req
+    );
+
+    return res.json({ success: true, message: 'Çıkış yapıldı' });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -110,30 +100,27 @@ export const logoutAllController = async (
   next: NextFunction
 ) => {
   try {
-    await logoutAllSessions(req.user!.id);
-
-    // Audit log
-    try {
-      const realIp = await getRealIpAddress(req);
-      await createAuditLog(
-        {
-          user_id: req.user!.id,
-          action: AUDIT_ACTIONS.LOGOUT,
-          ip_address: realIp,
-          user_agent: req.get('user-agent'),
-        },
-        req
-      );
-    } catch (auditError) {
-      console.error('Audit log hatası:', auditError);
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        error: 'Kullanıcı bilgisi bulunamadı',
+      });
     }
 
-    res.json({
-      success: true,
-      message: 'Tüm oturumlar kapatıldı',
-    });
+    await logoutAllSessions(req.user.id);
+
+    await createAuditLog(
+      {
+        user_id: req.user.id,
+        action: AUDIT_ACTIONS.LOGOUT,
+        new_values: { all_sessions: true },
+      },
+      req
+    );
+
+    return res.json({ success: true, message: 'Tüm oturumlar kapatıldı' });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -178,6 +165,114 @@ export const meController = async (
         depots,
       },
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// Kullanıcının kendi profilini güncelleme
+export const updateProfileController = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.user!;
+    const { name, email } = req.body;
+
+    const oldUser = await getUserById(id);
+
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+
+    const updatedUser = await updateUser(id, updateData);
+
+    await createAuditLog(
+      {
+        action: AUDIT_ACTIONS.UPDATE,
+        entity_type: 'User',
+        entity_id: id,
+        old_values: { name: oldUser.name, email: oldUser.email },
+        new_values: { name: updatedUser.name, email: updatedUser.email },
+      },
+      req
+    );
+
+    return res.json({ success: true, data: updatedUser });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// Şifre değiştirme
+export const changePasswordController = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.user!;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Mevcut şifre ve yeni şifre gereklidir',
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'Yeni şifre en az 6 karakter olmalıdır',
+      });
+    }
+
+    // Kullanıcıyı ve şifre hash'ini al
+    const { query } = require('../config/database');
+    const users = await query<any>(
+      `SELECT id, password_hash FROM Users WHERE id = @id`,
+      { id }
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Kullanıcı bulunamadı',
+      });
+    }
+
+    const user = users[0];
+
+    // Mevcut şifreyi kontrol et
+    const isPasswordValid = await comparePassword(currentPassword, user.password_hash);
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        error: 'Mevcut şifre yanlış',
+      });
+    }
+
+    // Yeni şifreyi hash'le ve güncelle
+    const newPasswordHash = await hashPassword(newPassword);
+    const { query } = require('../config/database');
+    await query(
+      `UPDATE Users SET password_hash = @passwordHash, updated_at = ${getTurkeyDateSQL()} WHERE id = @id`,
+      { passwordHash: newPasswordHash, id }
+    );
+
+    await createAuditLog(
+      {
+        action: AUDIT_ACTIONS.UPDATE,
+        entity_type: 'User',
+        entity_id: id,
+        new_values: { password_changed: true },
+      },
+      req
+    );
+
+    return res.json({ success: true, message: 'Şifre başarıyla değiştirildi' });
   } catch (error) {
     return next(error);
   }

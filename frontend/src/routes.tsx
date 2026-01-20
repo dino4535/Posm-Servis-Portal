@@ -16,6 +16,7 @@ import CustomReportDesignPage from './pages/CustomReportDesignPage';
 import ScheduledReportsPage from './pages/ScheduledReportsPage';
 import AuditLogPage from './pages/AuditLogPage';
 import BulkDealerImportPage from './pages/BulkDealerImportPage';
+import ProfilePage from './pages/ProfilePage';
 import DashboardLayout from './components/Layout/DashboardLayout';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -62,6 +63,7 @@ const AppRoutes = () => {
       >
         <Route index element={<Navigate to="/dashboard" />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="profile" element={<ProfilePage />} />
         <Route path="new-request" element={<NewRequestPage />} />
         <Route path="my-requests" element={<MyRequestsPage />} />
         <Route

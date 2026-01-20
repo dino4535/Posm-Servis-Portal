@@ -5,6 +5,8 @@ import {
   logoutController,
   logoutAllController,
   meController,
+  updateProfileController,
+  changePasswordController,
 } from '../controllers/authController';
 import { authenticate } from '../middleware/auth';
 
@@ -24,5 +26,7 @@ router.post('/login', loginLimiter, loginController);
 router.post('/logout', authenticate, logoutController);
 router.post('/logout-all', authenticate, logoutAllController);
 router.get('/me', authenticate, meController);
+router.put('/profile', authenticate, updateProfileController);
+router.post('/change-password', authenticate, changePasswordController);
 
 export default router;

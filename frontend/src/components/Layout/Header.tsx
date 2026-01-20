@@ -1,5 +1,5 @@
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useDepot } from '../../hooks/useDepot';
 import DepotSelector from '../DepotSelector';
 import '../../styles/Header.css';
@@ -30,7 +30,9 @@ const Header = () => {
               />
             </div>
           )}
-          <span className="user-name">{user?.name}</span>
+          <Link to="/profile" className="user-name-link">
+            <span className="user-name">{user?.name}</span>
+          </Link>
           <button onClick={handleLogout} className="logout-button">
             Çıkış Yap
           </button>
