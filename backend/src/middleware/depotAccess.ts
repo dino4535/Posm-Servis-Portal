@@ -5,7 +5,7 @@ import { query } from '../config/database';
 
 export const checkDepotAccess = async (
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {

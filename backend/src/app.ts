@@ -89,7 +89,7 @@ app.use('/api/custom-reports', customReportRoutes);
 import { getTurkeyDateTimeISO } from './utils/dateHelper';
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: getTurkeyDateTimeISO() });
 });
 

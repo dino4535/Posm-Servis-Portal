@@ -1,8 +1,5 @@
 import * as XLSX from 'xlsx';
 import { query } from '../config/database';
-import { ValidationError } from '../utils/errors';
-import { createDealer, CreateDealerData } from './dealerService';
-import { createTerritory, CreateTerritoryData } from './territoryService';
 
 export interface BulkImportRow {
   depo: string;
@@ -143,7 +140,7 @@ export const bulkImportDealers = async (
         finalAddress = address;
       }
 
-      const dealerResult = await query<{ id: number }>(
+      await query<{ id: number }>(
         `INSERT INTO Dealers (code, name, territory_id, address, phone, latitude, longitude)
          OUTPUT INSERTED.id
          VALUES (@code, @name, @territoryId, @address, @phone, @latitude, @longitude)`,

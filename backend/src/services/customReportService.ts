@@ -55,6 +55,9 @@ export interface CreateScheduledReportData {
   schedule_config: any; // { day: number[], hour: number, minute: number, repeat_type: 'daily'|'weekly'|'monthly' }
   recipients: string[]; // Email addresses
   depot_filters?: number[]; // Depot IDs
+  start_date?: string; // Date filter
+  end_date?: string; // Date filter
+  status?: string; // Status filter
 }
 
 export interface ScheduleConfig {
@@ -412,7 +415,7 @@ function buildQueryFromConfig(queryConfig: any, filters?: any): { query: string;
       params.depotId = filters.depot_id;
     }
     if (filters.depot_ids && Array.isArray(filters.depot_ids) && filters.depot_ids.length > 0) {
-      const depotPlaceholders = filters.depot_ids.map((_, i: number) => `@depotId${i}`).join(', ');
+      const depotPlaceholders = filters.depot_ids.map((_id: number, i: number) => `@depotId${i}`).join(', ');
       filterConditions.push(`${mainTableAlias}.depot_id IN (${depotPlaceholders})`);
       filters.depot_ids.forEach((id: number, i: number) => {
         params[`depotId${i}`] = id;
@@ -423,7 +426,7 @@ function buildQueryFromConfig(queryConfig: any, filters?: any): { query: string;
       params.status = filters.status;
     }
     if (filters.statuses && Array.isArray(filters.statuses) && filters.statuses.length > 0) {
-      const statusPlaceholders = filters.statuses.map((_, i: number) => `@status${i}`).join(', ');
+      const statusPlaceholders = filters.statuses.map((_status: string, i: number) => `@status${i}`).join(', ');
       filterConditions.push(`${mainTableAlias}.durum IN (${statusPlaceholders})`);
       filters.statuses.forEach((status: string, i: number) => {
         params[`status${i}`] = status;

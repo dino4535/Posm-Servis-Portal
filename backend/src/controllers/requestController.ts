@@ -10,7 +10,6 @@ import {
   cancelRequest,
   getDashboardCounts,
   deleteRequest,
-  RequestFilters,
 } from '../services/requestService';
 import { createAuditLog } from '../services/auditService';
 import { AUDIT_ACTIONS } from '../config/constants';
@@ -163,9 +162,9 @@ export const planRequestController = async (
       req
     );
 
-    res.json({ success: true, data: request });
+    return res.json({ success: true, data: request });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 

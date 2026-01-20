@@ -58,12 +58,12 @@ export const loginController = async (
       console.error('Audit log hatası:', auditError);
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: result,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -171,7 +171,7 @@ export const meController = async (
       { userId: id }
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         ...user,
@@ -179,6 +179,6 @@ export const meController = async (
       },
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };

@@ -4,15 +4,15 @@ import { logger } from '../utils/logger';
 
 export const errorHandler = (
   err: Error | AppError,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   if (err instanceof AppError) {
     logger.error(`AppError: ${err.message}`, {
       statusCode: err.statusCode,
-      path: req.path,
-      method: req.method,
+      path: _req.path,
+      method: _req.method,
     });
     
     return res.status(err.statusCode).json({
@@ -23,8 +23,8 @@ export const errorHandler = (
 
   logger.error(`Unexpected error: ${err.message}`, {
     stack: err.stack,
-    path: req.path,
-    method: req.method,
+    path: _req.path,
+    method: _req.method,
   });
 
   return res.status(500).json({

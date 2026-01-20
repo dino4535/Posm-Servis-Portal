@@ -84,9 +84,9 @@ router.get('/:id', async (req, res, next) => {
       });
     }
 
-    res.json({ success: true, data: logs[0] });
+    return res.json({ success: true, data: logs[0] });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

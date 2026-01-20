@@ -6,7 +6,7 @@
 
 Tarayıcıda veya Postman'de şu URL'yi test edin:
 ```
-http://localhost:3002/health
+http://localhost:3005/health
 ```
 
 **Beklenen Yanıt:**
@@ -29,7 +29,7 @@ npm run dev
 **Beklenen Çıktı:**
 ```
 MSSQL Server bağlantısı başarılı
-[INFO] Server 3002 portunda çalışıyor
+[INFO] Server 3005 portunda çalışıyor
 ```
 
 ### 3. Login Endpoint'ini Test Edin
@@ -37,7 +37,7 @@ MSSQL Server bağlantısı başarılı
 Tarayıcı Console'da (F12) şu komutu çalıştırın:
 
 ```javascript
-fetch('http://localhost:3002/api/auth/login', {
+fetch('http://localhost:3005/api/auth/login', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ fetch('http://localhost:3002/api/auth/login', {
 Eğer CORS hatası alıyorsanız, `backend/src/config/env.ts` dosyasında:
 ```typescript
 cors: {
-  origin: process.env.FRONTEND_URL || 'http://localhost:8001',
+  origin: process.env.FRONTEND_URL || 'http://localhost:4005',
 }
 ```
 

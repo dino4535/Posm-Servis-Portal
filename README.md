@@ -1,62 +1,122 @@
 # POSM Teknik Servis Portalı
 
-Modern web teknolojileri ile geliştirilmiş Teknik Servis Portalı uygulaması.
+## Hızlı Başlangıç
 
-## Teknoloji Stack
+### Yerel Geliştirme
 
-### Backend
-- Node.js 20+ (LTS)
-- Express.js 4.x
-- TypeScript 5.x
-- MSSQL Server
-- JWT Authentication
-- Multer (File Upload)
-
-### Frontend
-- React 18.x
-- Vite 5.x
-- TypeScript 5.x
-- React Router 6.x
-- FullCalendar
-- Axios
-
-## Kurulum
-
-### Backend
-
+#### Backend
 ```bash
 cd backend
 npm install
-cp .env.example .env
-# .env dosyasını düzenleyin
 npm run dev
 ```
 
-### Frontend
+Backend: http://localhost:3005
 
+#### Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-## Veritabanı
+Frontend: http://localhost:4005
 
-MSSQL Server'da `backend/scripts/create-database.sql` dosyasını çalıştırarak veritabanı şemasını oluşturun.
+---
+
+## Sunucuya Deploy
+
+### Otomatik Deploy (Önerilen)
+
+Sunucuda proje klasöründe:
+
+```bash
+# Script'i çalıştırılabilir yap
+chmod +x deploy.sh
+
+# Deploy script'ini çalıştır
+./deploy.sh
+```
+
+Bu script otomatik olarak:
+- `.env` dosyasını oluşturur
+- Docker ve Docker Compose'u kurar (yoksa)
+- Container'ları build eder ve başlatır
+- Health check yapar
+
+### Manuel Deploy
+
+Detaylı bilgi için `DEPLOY.md` dosyasına bakın.
+
+---
+
+## Docker ile Çalıştırma
+
+### Gereksinimler
+- Docker
+- Docker Compose
+
+### Adımlar
+
+1. **Environment dosyası oluştur**
+   
+   Proje root klasöründe `.env` dosyası oluşturun veya `deploy.sh` script'ini çalıştırın.
+
+2. **Docker Compose ile başlat**
+   
+   ```bash
+   docker-compose up -d --build
+   ```
+
+3. **Logları görüntüle**
+   
+   ```bash
+   docker-compose logs -f
+   ```
+
+4. **Container'ları durdur**
+   
+   ```bash
+   docker-compose down
+   ```
+
+### Portlar
+- Backend: http://localhost:3005
+- Frontend: http://localhost:4005
+
+---
 
 ## Özellikler
 
-- ✅ Kullanıcı yönetimi (Admin, Teknik, User)
-- ✅ Depo yönetimi (3 depo sistemi)
-- ✅ Territory ve Bayi yönetimi
-- ✅ POSM yönetimi ve stok takibi
-- ✅ Talep yönetimi (CRUD, durum güncelleme)
-- ✅ Fotoğraf yükleme
-- ✅ Takvim görünümü
-- ✅ Arama ve filtreleme
-- ✅ Audit logging
-- ✅ Responsive tasarım
-- ✅ Modern UI (glass efektleri, animasyonlar)
+- ✅ Kullanıcı yönetimi ve yetkilendirme
+- ✅ Bayi (Dealer) yönetimi
+- ✅ Bölge (Territory) yönetimi
+- ✅ Depo (Depot) yönetimi
+- ✅ Teknik servis talepleri
+- ✅ POSM yönetimi ve transferleri
+- ✅ Fotoğraf yükleme ve görüntüleme
+- ✅ Raporlama ve özel rapor tasarımı
+- ✅ Zamanlanmış raporlar
+- ✅ Audit log
+
+---
+
+## Teknolojiler
+
+### Backend
+- Node.js + Express
+- TypeScript
+- SQL Server (MSSQL)
+- JWT Authentication
+- Multer (File Upload)
+
+### Frontend
+- React + TypeScript
+- Vite
+- React Router
+- Axios
+
+---
 
 ## Lisans
 

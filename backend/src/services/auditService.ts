@@ -1,7 +1,7 @@
 import { query } from '../config/database';
 import { AuthRequest } from '../middleware/auth';
-import { AUDIT_ACTIONS, AuditAction } from '../config/constants';
-import { getRealIpAddress, getRealIpAddressSync } from '../utils/ip_helper';
+import { AuditAction } from '../config/constants';
+import { getRealIpAddressSync } from '../utils/ip_helper';
 
 export interface AuditLogData {
   user_id?: number;

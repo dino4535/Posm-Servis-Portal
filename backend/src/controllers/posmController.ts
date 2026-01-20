@@ -292,7 +292,7 @@ export const bulkInsertPosmToAllDepotsController = async (
       req
     );
 
-    res.json({
+    return res.json({
       success: true,
       message: totalErrors === 0 
         ? 'Tüm depolar için POSM\'ler başarıyla eklendi'
@@ -307,7 +307,7 @@ export const bulkInsertPosmToAllDepotsController = async (
       },
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 

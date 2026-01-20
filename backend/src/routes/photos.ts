@@ -3,7 +3,6 @@ import { authenticate } from '../middleware/auth';
 import { upload } from '../middleware/upload';
 import {
   getPhotosByRequestController,
-  uploadPhotoController,
   uploadPhotosController,
   getPhotoController,
   getPhotoBase64Controller,

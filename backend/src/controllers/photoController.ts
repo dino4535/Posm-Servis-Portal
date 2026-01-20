@@ -5,7 +5,6 @@ import {
   getPhotoById,
   createPhoto,
   deletePhoto,
-  getPhotoFilePath,
 } from '../services/photoService';
 import { createAuditLog } from '../services/auditService';
 import { AUDIT_ACTIONS } from '../config/constants';
@@ -67,9 +66,9 @@ export const uploadPhotoController = async (
       req
     );
 
-    res.status(201).json({ success: true, data: photo });
+    return res.status(201).json({ success: true, data: photo });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -121,9 +120,9 @@ export const uploadPhotosController = async (
       uploadedPhotos.push(photo);
     }
 
-    res.status(201).json({ success: true, data: uploadedPhotos });
+    return res.status(201).json({ success: true, data: uploadedPhotos });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -169,9 +168,11 @@ export const getPhotoController = async (
         });
       }
     });
+    // Stream kullanıldığı için return gerekli değil
+    return;
   } catch (error) {
     console.error('[PHOTO] Controller hatası:', error);
-    next(error);
+    return next(error);
   }
 };
 
@@ -202,7 +203,7 @@ export const getPhotoBase64Controller = async (
     const mimeType = photo.mime_type || 'image/jpeg';
     const dataUrl = `data:${mimeType};base64,${base64}`;
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         id: photo.id,
@@ -213,7 +214,7 @@ export const getPhotoBase64Controller = async (
     });
   } catch (error) {
     console.error('[PHOTO BASE64] Controller hatası:', error);
-    next(error);
+    return next(error);
   }
 };
 

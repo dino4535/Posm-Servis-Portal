@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { config } from '../config/env';
 import { query } from '../config/database';
 import { UnauthorizedError } from '../utils/errors';
@@ -36,8 +36,8 @@ export const generateToken = (user: { id: number; email: string; name: string; r
     },
     config.jwt.secret,
     {
-      expiresIn: config.jwt.expiresIn,
-    }
+      expiresIn: config.jwt.expiresIn as string | number,
+    } as SignOptions
   );
 };
 

@@ -16,7 +16,7 @@ import { sendWelcomeEmail } from '../services/emailService';
 import { getDepotById } from '../services/depotService';
 
 export const getAllUsersController = async (
-  req: AuthRequest,
+  _req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {

@@ -33,11 +33,11 @@ export const bulkImportDealersController = async (
       req
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: result,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };

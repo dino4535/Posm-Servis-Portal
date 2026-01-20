@@ -1,7 +1,6 @@
 import { Request } from 'express';
 import os from 'os';
 import https from 'https';
-import http from 'http';
 
 /**
  * Localhost IP adreslerini kontrol eder
@@ -178,20 +177,21 @@ const getPublicIpFromApi = (): Promise<string | undefined> => {
       .then((ip) => {
         if (ip) {
           resolve(ip);
-        } else {
-          return tryIcanhazip();
+          return;
         }
+        return tryIcanhazip();
       })
       .then((ip) => {
         if (ip) {
           resolve(ip);
         } else {
           console.warn('[IP] Public IP API\'lerinden IP alınamadı');
-          resolve(undefined);
+          resolve('127.0.0.1');
         }
       })
       .catch(() => {
-        resolve(undefined);
+        console.warn('[IP] Public IP API\'lerinden IP alınamadı');
+        resolve('127.0.0.1');
       });
   });
 };

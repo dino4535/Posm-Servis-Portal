@@ -149,7 +149,7 @@ export const executeReportController = async (
 
 // Scheduled Reports
 export const getAllScheduledReportsController = async (
-  req: AuthRequest,
+  _req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -260,7 +260,7 @@ export const deleteScheduledReportController = async (
 
 // Scheduled report'ları çalıştır (cron job için)
 export const runScheduledReportsController = async (
-  req: AuthRequest,
+  _req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {

@@ -1,9 +1,8 @@
 import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { query } from '../config/database';
 import { getTurkeyDateSQL } from '../utils/dateHelper';
 import { config } from '../config/env';
-import { UnauthorizedError } from '../utils/errors';
 
 export interface TokenData {
   id: number;
@@ -158,8 +157,8 @@ export const createAndSaveToken = async (
     },
     config.jwt.secret,
     {
-      expiresIn: config.jwt.expiresIn,
-    }
+      expiresIn: config.jwt.expiresIn as string | number,
+    } as SignOptions
   );
 
   // Token süresini hesapla

@@ -2,10 +2,9 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from './auth';
 import { ForbiddenError } from '../utils/errors';
 import { ROLES } from '../config/constants';
-import { ForbiddenError as Forbidden } from '../utils/errors';
 
 export const authorize = (...allowedRoles: string[]) => {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
+  return (req: AuthRequest, _res: Response, next: NextFunction) => {
     if (!req.user) {
       throw new ForbiddenError('Kullanıcı bilgisi bulunamadı');
     }

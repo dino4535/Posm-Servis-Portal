@@ -67,7 +67,7 @@ export const searchDealersController = async (
     const offset = (pageNum - 1) * limitNum;
     
     const result = await searchDealers(q, territoryId, depotId, limitNum, offset);
-    res.json({ 
+    return res.json({ 
       success: true, 
       data: result.dealers,
       pagination: {
@@ -78,7 +78,7 @@ export const searchDealersController = async (
       }
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 

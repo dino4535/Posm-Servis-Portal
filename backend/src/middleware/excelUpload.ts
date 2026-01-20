@@ -4,7 +4,7 @@ import { Request } from 'express';
 // Memory storage kullan (buffer olarak al)
 const storage = multer.memoryStorage();
 
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // Excel dosyalarına izin ver
   const allowedMimes = [
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx

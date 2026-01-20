@@ -122,13 +122,11 @@ export const createTransfer = async (
   
   if (posmDepotId !== fromDepotId) {
     throw new ValidationError(
-      `POSM kaynak depoda bulunmuyor. Seçilen POSM "${posm.name}" ${posm.depot_name || 'bilinmeyen'} deposunda bulunuyor, ancak kaynak depo olarak farklı bir depo seçilmiş.`
+      `POSM kaynak depoda bulunmuyor. Seçilen POSM "${posm.name}" deposunda bulunuyor, ancak kaynak depo olarak farklı bir depo seçilmiş.`
     );
   }
 
   // Stok kontrolü
-  const stockField =
-    data.transfer_type === 'Hazir' ? 'hazir_adet' : 'tamir_bekleyen';
   const currentStock =
     data.transfer_type === 'Hazir' ? posm.hazir_adet : posm.tamir_bekleyen;
 
@@ -189,7 +187,7 @@ export const approveTransfer = async (
 
 export const completeTransfer = async (
   id: number,
-  userId: number
+  _userId: number
 ): Promise<POSMTransfer> => {
   const transfer = await getTransferById(id);
 
@@ -279,7 +277,7 @@ export const completeTransfer = async (
 
 export const cancelTransfer = async (
   id: number,
-  userId: number
+  _userId: number
 ): Promise<POSMTransfer> => {
   const transfer = await getTransferById(id);
 

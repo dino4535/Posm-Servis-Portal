@@ -1,4 +1,3 @@
-import { getTurkeyDate } from './dateHelper';
 
 export const generateRequestNo = (): string => {
   const timestamp = Date.now();

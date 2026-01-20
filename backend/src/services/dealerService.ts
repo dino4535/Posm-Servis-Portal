@@ -1,5 +1,5 @@
 import { query } from '../config/database';
-import { NotFoundError, ValidationError } from '../utils/errors';
+import { NotFoundError } from '../utils/errors';
 
 export interface Dealer {
   id: number;

@@ -1,7 +1,7 @@
 import { query } from '../config/database';
 import { NotFoundError, ValidationError } from '../utils/errors';
 import { generateRequestNo } from '../utils/helpers';
-import { getTurkeyDateString, getTurkeyDateSQL, formatTurkeyDateTime } from '../utils/dateHelper';
+import { getTurkeyDateString, getTurkeyDateSQL } from '../utils/dateHelper';
 import { REQUEST_STATUS, REQUEST_TYPES } from '../config/constants';
 import {
   sendRequestCreatedEmail,
