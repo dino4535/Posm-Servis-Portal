@@ -19,4 +19,5 @@ ENV VITE_API_URL=/api
 EXPOSE 4005
 
 # Development modunda çalıştır (hot reload ile)
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# --host 0.0.0.0 tüm network interface'lerden erişime izin verir
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "4005"]
