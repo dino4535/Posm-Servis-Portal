@@ -26,6 +26,7 @@ interface Request {
   depot_id?: number;
   depot_name?: string;
   posm_id?: number;
+  posm_name?: string;
   yapilacak_is_detay?: string;
   created_at?: string;
   user_name?: string;
@@ -368,6 +369,14 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
                     {currentRequest.territory_name || currentRequest.territory_code || '-'}
                   </span>
                 </div>
+                {currentRequest.posm_id && (
+                  <div className="detail-row">
+                    <span className="detail-label">POSM:</span>
+                    <span className="detail-value">
+                      {currentRequest.posm_name || `POSM ID: ${currentRequest.posm_id}`}
+                    </span>
+                  </div>
+                )}
                 {currentRequest.bayi_latitude && currentRequest.bayi_longitude && (
                   <div className="detail-row">
                     <span className="detail-label">Konum:</span>
