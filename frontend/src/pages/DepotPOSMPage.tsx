@@ -110,6 +110,17 @@ const DepotPOSMPage = () => {
     );
   }, [filteredPosms]);
 
+  // Özet istatistikleri hesapla - memoize edilmiş (Hooks kuralları: if'den önce olmalı)
+  const summaryStats = useMemo(() => {
+    return {
+      totalDepots: depots.length,
+      totalPOSM: filteredPosms.length,
+      totalHazir: filteredPosms.reduce((sum, p) => sum + p.hazir_adet, 0),
+      totalRevize: filteredPosms.reduce((sum, p) => sum + p.revize_adet, 0),
+      totalTamir: filteredPosms.reduce((sum, p) => sum + p.tamir_bekleyen, 0),
+    };
+  }, [depots.length, filteredPosms]);
+
   if (loading) {
     return (
       <div className="depot-posm-page">
@@ -120,17 +131,6 @@ const DepotPOSMPage = () => {
       </div>
     );
   }
-
-  // Özet istatistikleri hesapla - memoize edilmiş
-  const summaryStats = useMemo(() => {
-    return {
-      totalDepots: depots.length,
-      totalPOSM: filteredPosms.length,
-      totalHazir: filteredPosms.reduce((sum, p) => sum + p.hazir_adet, 0),
-      totalRevize: filteredPosms.reduce((sum, p) => sum + p.revize_adet, 0),
-      totalTamir: filteredPosms.reduce((sum, p) => sum + p.tamir_bekleyen, 0),
-    };
-  }, [depots.length, filteredPosms]);
 
   return (
     <div className="depot-posm-page">
