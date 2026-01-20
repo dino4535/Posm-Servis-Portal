@@ -31,9 +31,9 @@ services:
       - SMTP_PASS=${SMTP_PASS}
       - EMAIL_FROM=${EMAIL_FROM}
     volumes:
-      - ./backend/src:/app/src
+      - ./backend/src:/app/src:ro
       - ./backend/uploads:/app/uploads
-      - /app/node_modules
+      - backend-node-modules:/app/node_modules
     networks:
       - posm-network
     healthcheck:
@@ -65,3 +65,7 @@ services:
 networks:
   posm-network:
     driver: bridge
+
+volumes:
+  backend-node-modules:
+  frontend-node-modules:
