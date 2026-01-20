@@ -1,0 +1,60 @@
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-attachment: fixed;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 280px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100vh;
+}
+
+.content-area {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 60px; /* Footer için alan */
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 18px;
+  color: #666;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* Tablet Styles (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-content {
+    margin-left: 240px; /* Tablet'te sidebar genişliği */
+  }
+}
+
+/* Mobile Styles (max-width: 768px) */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
+
+  .content-area {
+    padding: 0;
+  }
+
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  /* Mobilde header'ın hamburger butonu ile çakışmaması için */
+  .header {
+    position: relative;
+  }
+}

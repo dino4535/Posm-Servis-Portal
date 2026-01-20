@@ -1,0 +1,354 @@
+.dealer-management-page {
+  padding: 30px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.page-header h2 {
+  color: var(--dark-color);
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.add-button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.add-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.filters-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-input,
+.filter-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  transition: var(--transition);
+}
+
+.search-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+}
+
+.form-modal {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+}
+
+.form-content h3 {
+  margin: 0 0 20px 0;
+  color: var(--dark-color);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--dark-color);
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.submit-button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.submit-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.cancel-button {
+  padding: 12px 24px;
+  background: var(--light-color);
+  color: var(--dark-color);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.cancel-button:hover {
+  background: var(--border-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.dealers-table-container {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+  overflow-y: visible;
+  border: 1px solid var(--border-color);
+}
+
+.dealers-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dealers-table th,
+.dealers-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dealers-table th {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-weight: 700;
+  color: var(--dark-color);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  padding: 16px 12px;
+  border-bottom: 2px solid var(--border-dark);
+}
+
+.dealers-table tr {
+  transition: var(--transition);
+}
+
+.dealers-table tr:hover {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+  transform: scale(1.01);
+}
+
+.edit-button,
+.delete-button {
+  padding: 6px 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-right: 8px;
+}
+
+.edit-button {
+  background: var(--primary-color);
+  color: white;
+}
+
+.edit-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.delete-button {
+  background: var(--danger-color);
+  color: white;
+}
+
+.delete-button:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.no-data,
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.no-access {
+  text-align: center;
+  padding: 40px;
+  color: var(--danger-color);
+  font-weight: 600;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pagination-info {
+  color: var(--dark-color);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pagination-button {
+  padding: 10px 16px;
+  border: 2px solid var(--border-color);
+  background: white;
+  color: var(--dark-color);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 14px;
+  min-width: 44px;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-button.active {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow);
+}
+
+/* Tablet Styles (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dealers-page {
+    padding: 20px;
+  }
+
+  .dealers-table {
+    font-size: 13px;
+  }
+
+  .dealers-table th,
+  .dealers-table td {
+    padding: 10px 8px;
+  }
+
+  .dealers-table th {
+    font-size: 11px;
+    padding: 12px 8px;
+  }
+
+  .edit-button,
+  .delete-button {
+    padding: 6px 12px;
+    font-size: 12px;
+    margin-right: 6px;
+  }
+
+  .filters-section {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+}
+
+/* Mobile Styles (max-width: 768px) */
+@media (max-width: 768px) {
+  .dealers-table {
+    font-size: 12px;
+    min-width: 1000px;
+  }
+
+  .dealers-table th,
+  .dealers-table td {
+    padding: 8px 6px;
+  }
+
+  .edit-button,
+  .delete-button {
+    padding: 4px 8px;
+    font-size: 11px;
+    margin-right: 4px;
+  }
+}

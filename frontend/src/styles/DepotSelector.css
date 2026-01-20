@@ -1,0 +1,40 @@
+.depot-selector {
+  margin-bottom: 20px;
+}
+
+.depot-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--dark-color);
+  font-size: 14px;
+}
+
+.depot-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  transition: var(--transition);
+  background: #fff;
+  cursor: pointer;
+}
+
+.depot-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+}
+
+.depot-selector-loading,
+.depot-selector-error {
+  padding: 12px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.depot-selector-error {
+  color: var(--danger-color);
+}

@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import { formatDate } from '../utils/utils';
 import '../styles/RequestCalendar.css';
 
 interface Request {
@@ -9,6 +8,7 @@ interface Request {
   request_no: string;
   dealer_id: number;
   bayi_adi?: string;
+  bayi_kodu?: string;
   yapilacak_is: string;
   istenen_tarih: string;
   planlanan_tarih?: string;
@@ -33,9 +33,13 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
       className = 'status-planlandi';
     }
 
+    const title = request.bayi_adi 
+      ? `${request.bayi_adi} - ${request.yapilacak_is}`
+      : request.request_no;
+
     return {
       id: request.id.toString(),
-      title: request.bayi_adi || request.request_no,
+      title: title.length > 30 ? title.substring(0, 27) + '...' : title,
       start: date,
       allDay: true,
       className: className,

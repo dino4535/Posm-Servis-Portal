@@ -1,0 +1,119 @@
+.all-requests-page {
+  padding: 30px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.all-requests-page h2 {
+  margin-bottom: 30px;
+  color: var(--dark-color);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.requests-table-container {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.requests-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.requests-table th,
+.requests-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.requests-table th {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-weight: 700;
+  color: var(--dark-color);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  padding: 16px 12px;
+  border-bottom: 2px solid var(--border-dark);
+}
+
+.requests-table tr {
+  transition: var(--transition);
+}
+
+.requests-table tr:hover {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+  transform: scale(1.01);
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-beklemede {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-planlandı {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-tamamlandı {
+  background: #d4edda;
+  color: #155724;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+/* Tablet Styles (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .all-requests-page {
+    padding: 20px;
+  }
+
+  .requests-table {
+    font-size: 13px;
+  }
+
+  .requests-table th,
+  .requests-table td {
+    padding: 10px 8px;
+  }
+
+  .requests-table th {
+    font-size: 11px;
+    padding: 12px 8px;
+  }
+}
+
+/* Mobile Styles (max-width: 768px) */
+@media (max-width: 768px) {
+  .requests-table {
+    font-size: 14px;
+  }
+
+  .requests-table th,
+  .requests-table td {
+    padding: 8px;
+  }
+}

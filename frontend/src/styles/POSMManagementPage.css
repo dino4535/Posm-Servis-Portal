@@ -1,0 +1,298 @@
+.posm-management-page {
+  padding: 30px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.page-header h2 {
+  margin: 0;
+  color: var(--dark-color);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.add-button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+
+.add-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5);
+}
+
+.form-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.form-content {
+  background: white;
+  padding: 30px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.form-content h3 {
+  margin: 0 0 24px 0;
+  color: var(--dark-color);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--dark-color);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  transition: var(--transition);
+  background: #fff;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.submit-button {
+  flex: 1;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--success-color) 0%, #2ecc71 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 15px;
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.5);
+}
+
+.cancel-button {
+  flex: 1;
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--dark-color);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 15px;
+}
+
+.cancel-button:hover {
+  background: var(--light-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.edit-button,
+.delete-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-right: 8px;
+}
+
+.edit-button {
+  background: var(--primary-color);
+  color: white;
+}
+
+.edit-button:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+.delete-button {
+  background: #e74c3c;
+  color: white;
+}
+
+.delete-button:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+}
+
+.status-active {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.status-inactive {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.no-access {
+  padding: 40px;
+  text-align: center;
+  color: #e74c3c;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.posm-table-container {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.posm-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.posm-table th,
+.posm-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.posm-table th {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-weight: 700;
+  color: var(--dark-color);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  padding: 16px 12px;
+  border-bottom: 2px solid var(--border-dark);
+}
+
+.posm-table tr {
+  transition: var(--transition);
+}
+
+.posm-table tr:hover {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+  transform: scale(1.01);
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+/* Tablet Styles (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .posm-management-page {
+    padding: 20px;
+  }
+
+  .posm-table {
+    font-size: 13px;
+  }
+
+  .posm-table th,
+  .posm-table td {
+    padding: 10px 8px;
+  }
+
+  .posm-table th {
+    font-size: 11px;
+    padding: 12px 8px;
+  }
+
+  .edit-button,
+  .delete-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Mobile Styles (max-width: 768px) */
+@media (max-width: 768px) {
+  .posm-table {
+    font-size: 14px;
+  }
+}
