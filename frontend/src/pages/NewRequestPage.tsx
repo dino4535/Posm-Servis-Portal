@@ -626,54 +626,13 @@ const NewRequestPage = () => {
         )}
 
         <div className="form-group">
-          <label>Fotoğraf Yükle *</label>
-          <div className="photo-description">
+          <div className="photo-info-box">
             <p>
-              <strong>Önemli:</strong> Fotoğraf POSM'in montaj edileceği yerden veya POSM'in kendisinden olmalıdır.
+              <strong>📸 Fotoğraf Bilgisi:</strong> Talep oluşturulduktan sonra fotoğraf yükleme ekranı açılacaktır. 
+              En az 1 fotoğraf yüklenmesi zorunludur.
             </p>
           </div>
-          <div className="photo-upload-area" onClick={() => fileInputRef.current?.click()}>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileSelect}
-              style={{ display: 'none' }}
-            />
-            <div className="upload-icon">📷</div>
-            <p>Fotoğraf seçmek için tıklayın</p>
-            <span className="upload-hint">Maksimum 10 fotoğraf (JPG, PNG) - En az 1 fotoğraf zorunludur</span>
-          </div>
-
-          {selectedFiles.length > 0 && (
-            <div className="selected-photos-preview">
-              <h4>Seçilen Fotoğraflar ({selectedFiles.length})</h4>
-              <div className="preview-grid">
-                {previews.map((preview, index) => (
-                  <div key={index} className="preview-item">
-                    <img src={preview} alt={`Preview ${index + 1}`} />
-                    <button
-                      className="remove-preview"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeFile(index);
-                      }}
-                      type="button"
-                    >
-                      ×
-                    </button>
-                    <span className="file-name">{selectedFiles[index].name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
-
-        {photoError && (
-          <div className="error-message">{photoError}</div>
-        )}
 
         <button type="submit" className="submit-button" disabled={loading}>
           {loading ? 'Oluşturuluyor...' : 'Talep Oluştur'}
