@@ -13,6 +13,11 @@ export default defineConfig({
     host: '0.0.0.0', // Tüm network interface'lerden erişime izin ver
     port: 4005,
     strictPort: false,
+    hmr: {
+      host: 'posm.dinogida.com.tr',
+      protocol: 'ws',
+      clientPort: 80,
+    },
     allowedHosts: [
       'posm.dinogida.com.tr',
       'localhost',
