@@ -46,19 +46,36 @@ const DepotPOSMPage = () => {
 
   // Depo listesini al (benzersiz) - memoize edilmiş
   const depots = useMemo(() => {
-    const depotMap = new Map<number, { id: number; name: string; code: string }>();
+    const depotMap = new Map<string, { id: number; name: string; code: string }>();
     
     posms.forEach((posm) => {
-      if (!depotMap.has(posm.depot_id)) {
-        depotMap.set(posm.depot_id, {
-          id: posm.depot_id,
-          name: posm.depot_name,
-          code: posm.depot_code,
-        });
+      // Hem depot_id hem de name+code kombinasyonunu key olarak kullan
+      // Bu şekilde aynı depot_id'ye sahip farklı isimler olsa bile tekrar olmaz
+      const key = `${posm.depot_id}-${posm.depot_name}-${posm.depot_code}`;
+      
+      if (!depotMap.has(key)) {
+        // Aynı depot_id'ye sahip başka bir kayıt var mı kontrol et
+        const existingDepot = Array.from(depotMap.values()).find(d => d.id === posm.depot_id);
+        
+        if (!existingDepot) {
+          depotMap.set(key, {
+            id: posm.depot_id,
+            name: posm.depot_name,
+            code: posm.depot_code,
+          });
+        }
       }
     });
     
-    return Array.from(depotMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    // Depot ID'ye göre benzersiz hale getir
+    const uniqueDepots = new Map<number, { id: number; name: string; code: string }>();
+    Array.from(depotMap.values()).forEach(depot => {
+      if (!uniqueDepots.has(depot.id)) {
+        uniqueDepots.set(depot.id, depot);
+      }
+    });
+    
+    return Array.from(uniqueDepots.values()).sort((a, b) => a.name.localeCompare(b.name));
   }, [posms]);
 
   // Filtrelenmiş POSM listesi - memoize edilmiş
@@ -105,6 +122,17 @@ const DepotPOSMPage = () => {
     );
   }
 
+  // Özet istatistikleri hesapla - memoize edilmiş
+  const summaryStats = useMemo(() => {
+    return {
+      totalDepots: depots.length,
+      totalPOSM: filteredPosms.length,
+      totalHazir: filteredPosms.reduce((sum, p) => sum + p.hazir_adet, 0),
+      totalRevize: filteredPosms.reduce((sum, p) => sum + p.revize_adet, 0),
+      totalTamir: filteredPosms.reduce((sum, p) => sum + p.tamir_bekleyen, 0),
+    };
+  }, [depots.length, filteredPosms]);
+
   return (
     <div className="depot-posm-page">
       <div className="page-header">
@@ -112,6 +140,35 @@ const DepotPOSMPage = () => {
         <p className="page-description">
           Tanımlı olduğunuz depolardaki POSM envanter bilgilerini görüntüleyebilirsiniz.
         </p>
+      </div>
+
+      {/* Özet alanı en yukarıda */}
+      <div className="summary-section">
+        <div className="summary-card">
+          <h3>Özet</h3>
+          <div className="summary-stats">
+            <div className="stat-item">
+              <span className="stat-label">Toplam Depo:</span>
+              <span className="stat-value">{summaryStats.totalDepots}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Toplam POSM:</span>
+              <span className="stat-value">{summaryStats.totalPOSM}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Toplam Hazır:</span>
+              <span className="stat-value">{summaryStats.totalHazir}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Toplam Revize:</span>
+              <span className="stat-value">{summaryStats.totalRevize}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Toplam Tamir Bekleyen:</span>
+              <span className="stat-value">{summaryStats.totalTamir}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="filters-section">
