@@ -33,11 +33,8 @@ const NewRequestPage = () => {
   const [showPosmSection, setShowPosmSection] = useState(false);
   const [photos, setPhotos] = useState<any[]>([]);
   const [photoError, setPhotoError] = useState('');
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
   const [showDealerDropdown, setShowDealerDropdown] = useState(false);
   const dateInputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const dealerSearchRef = useRef<HTMLDivElement>(null);
 
@@ -136,40 +133,9 @@ const NewRequestPage = () => {
     }
   }, [formData.depot_id, formData.yapilacak_is]);
 
-  const uploadSelectedPhotos = async () => {
-    if (!createdRequestId || selectedFiles.length === 0) return;
-
-    try {
-      const formData = new FormData();
-      selectedFiles.forEach((file) => {
-        formData.append('photo', file);
-      });
-      formData.append('request_id', createdRequestId.toString());
-
-      // FormData için Content-Type header'ını kaldır - browser otomatik ekler (boundary ile)
-      await api.post('/photos', formData);
-
-      // Fotoğraflar yüklendi, listeyi temizle
-      setSelectedFiles([]);
-      setPreviews([]);
-      
-      // Yüklenen fotoğrafları getir
-      const response = await api.get(`/photos/request/${createdRequestId}`);
-      if (response.data.success) {
-        setPhotos(response.data.data);
-        setPhotoError('');
-      }
-    } catch (error: any) {
-      console.error('Fotoğraf yüklenirken hata:', error);
-      setPhotoError('Fotoğraflar yüklenirken hata oluştu. Lütfen tekrar deneyin.');
-    }
-  };
-
   useEffect(() => {
-    if (createdRequestId && selectedFiles.length > 0) {
-      // Talep oluşturuldu, seçilen fotoğrafları yükle
-      uploadSelectedPhotos();
-    } else if (createdRequestId) {
+    // Talep oluşturulduktan sonra fotoğrafları kontrol et
+    if (createdRequestId) {
       const fetchPhotos = async () => {
         try {
           const response = await api.get(`/photos/request/${createdRequestId}`);
@@ -185,8 +151,7 @@ const NewRequestPage = () => {
       fetchPhotos();
       return () => clearInterval(interval);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createdRequestId, selectedFiles.length]);
+  }, [createdRequestId]);
 
   const handleSearchDealer = useCallback(async () => {
     if (searchTerm.length < 2) {
@@ -273,29 +238,6 @@ const NewRequestPage = () => {
     };
   }, []);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-
-    // Maksimum 10 dosya
-    const newFiles = files.slice(0, 10 - selectedFiles.length);
-    setSelectedFiles([...selectedFiles, ...newFiles]);
-    setPhotoError('');
-
-    // Önizlemeler oluştur
-    newFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviews((prev) => [...prev, e.target?.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const removeFile = (index: number) => {
-    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
-    setPreviews(previews.filter((_, i) => i !== index));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -303,12 +245,6 @@ const NewRequestPage = () => {
     // Bayi kontrolü
     if (!selectedDealer && !formData.dealer_id) {
       showWarning('Lütfen bir bayi seçin');
-      return;
-    }
-    
-    // Fotoğraf kontrolü
-    if (selectedFiles.length === 0) {
-      setPhotoError('Lütfen en az bir fotoğraf seçin. Fotoğraf POSM\'in montaj edileceği yer veya POSM\'den olmalıdır.');
       return;
     }
 
@@ -326,7 +262,7 @@ const NewRequestPage = () => {
       });
       if (response.data.success) {
         setCreatedRequestId(response.data.data.id);
-        // Talep oluşturuldu, fotoğraflar otomatik yüklenecek (useEffect'te)
+        // Talep oluşturuldu, fotoğraflar talep oluşturulduktan sonra yüklenecek
       }
     } catch (error: any) {
       showError(error.response?.data?.error || 'Talep oluşturulurken hata oluştu');
@@ -385,7 +321,7 @@ const NewRequestPage = () => {
         <div className="request-created-section">
           <h2>Talep Oluşturuldu</h2>
           <p className="success-message">
-            Talep başarıyla oluşturuldu. Lütfen fotoğraf yükleyin.
+            Talep başarıyla oluşturuldu. Lütfen en az bir fotoğraf yükleyin.
           </p>
           <div className="photo-requirement-info">
             <h3>Fotoğraf Gereksinimleri</h3>
