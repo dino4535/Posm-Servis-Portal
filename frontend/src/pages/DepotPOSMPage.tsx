@@ -69,9 +69,20 @@ const DepotPOSMPage = () => {
       if (!depotName || !depotCode) return;
       
       // depot_id'yi number'a çevir (string olarak gelebilir)
-      const depotId = typeof posm.depot_id === 'string' 
-        ? parseInt(posm.depot_id.split(',')[0], 10) // "1,1" gibi değerler için ilk kısmı al
-        : Number(posm.depot_id);
+      let depotId: number;
+      if (typeof posm.depot_id === 'string') {
+        // String ise, virgül varsa ilk kısmı al, yoksa direkt parse et
+        const cleanId = posm.depot_id.split(',')[0].trim();
+        depotId = parseInt(cleanId, 10);
+      } else {
+        depotId = Number(posm.depot_id);
+      }
+      
+      // NaN kontrolü
+      if (isNaN(depotId) || depotId <= 0) {
+        console.warn('Geçersiz depot_id:', posm.depot_id, 'POSM:', posm.name);
+        return;
+      }
       
       // İsim ve kod kombinasyonunu key olarak kullan
       const displayKey = `${depotName}|${depotCode}`;
@@ -93,8 +104,8 @@ const DepotPOSMPage = () => {
     });
     
     // Array'e çevir, boş olanları filtrele ve isme göre sırala
-    return Array.from(uniqueDepotMap.values())
-      .filter(depot => depot.name && depot.code && depot.id) // Boş değerleri filtrele
+    const result = Array.from(uniqueDepotMap.values())
+      .filter(depot => depot.name && depot.code && depot.id && !isNaN(depot.id)) // Boş ve geçersiz değerleri filtrele
       .sort((a, b) => {
         const nameA = a.name.toLowerCase();
         const nameB = b.name.toLowerCase();
@@ -102,6 +113,9 @@ const DepotPOSMPage = () => {
         if (nameA > nameB) return 1;
         return 0;
       });
+    
+    console.log('Depots array oluşturuldu:', result.length, 'depot bulundu');
+    return result;
   }, [posms]);
 
   // Seçili depo için tüm depot_id'leri bul
