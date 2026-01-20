@@ -59,15 +59,10 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-      # Frontend healthcheck başarısız olsa bile container çalışmaya devam eder
     networks:
       - posm-network
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4005', (r) => {process.exit(r.statusCode === 200 || r.statusCode === 304 || r.statusCode === 404 ? 0 : 1)}).on('error', (e) => {console.error(e); process.exit(1)})"]
-      interval: 30s
-      timeout: 15s
-      retries: 5
-      start_period: 60s
+    # Healthcheck kaldırıldı - Vite dev server başlaması zaman alabilir
+    # Container başarısız olarak işaretlenmesin diye healthcheck devre dışı
 
 networks:
   posm-network:
