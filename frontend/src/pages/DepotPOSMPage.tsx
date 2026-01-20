@@ -45,30 +45,29 @@ const DepotPOSMPage = () => {
   };
 
   // Depo listesini al (benzersiz) - memoize edilmiş
+  // Depo ismi ve kodu kombinasyonuna göre benzersiz hale getir
   const depots = useMemo(() => {
-    // Önce tüm depo bilgilerini topla
-    const depotMap = new Map<number, { id: number; name: string; code: string }>();
+    // İsim ve kod kombinasyonuna göre benzersiz hale getir
+    const uniqueDepotMap = new Map<string, { id: number; name: string; code: string }>();
     
     posms.forEach((posm) => {
-      // Sadece depot_id'ye göre benzersiz hale getir
-      // Aynı depot_id için ilk gelen depot_name ve depot_code'u kullan
-      if (!depotMap.has(posm.depot_id)) {
-        depotMap.set(posm.depot_id, {
-          id: posm.depot_id,
-          name: posm.depot_name || '',
-          code: posm.depot_code || '',
-        });
+      if (posm.depot_name && posm.depot_code) {
+        // İsim ve kod kombinasyonunu key olarak kullan
+        const displayKey = `${posm.depot_name.trim()}|${posm.depot_code.trim()}`;
+        
+        // Eğer bu kombinasyon daha önce eklenmemişse ekle
+        if (!uniqueDepotMap.has(displayKey)) {
+          uniqueDepotMap.set(displayKey, {
+            id: posm.depot_id,
+            name: posm.depot_name.trim(),
+            code: posm.depot_code.trim(),
+          });
+        }
       }
     });
     
-    // Array'e çevir ve sırala
-    const uniqueDepots = Array.from(depotMap.values());
-    
-    // İsim ve kod boş olanları filtrele
-    const validDepots = uniqueDepots.filter(d => d.name && d.code);
-    
-    // İsme göre sırala
-    return validDepots.sort((a, b) => {
+    // Array'e çevir ve isme göre sırala
+    return Array.from(uniqueDepotMap.values()).sort((a, b) => {
       const nameA = a.name.toLowerCase();
       const nameB = b.name.toLowerCase();
       if (nameA < nameB) return -1;
