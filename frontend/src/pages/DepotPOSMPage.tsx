@@ -49,7 +49,14 @@ const DepotPOSMPage = () => {
   const depots = useMemo(() => {
     // İsim ve kod kombinasyonuna göre benzersiz hale getir
     // Aynı isim ve koda sahip tüm depot_id'leri topla
-    const uniqueDepotMap = new Map<string, { id: number; name: string; code: string; depotIds: number[] }>();
+    interface DepotInfo {
+      id: number;
+      name: string;
+      code: string;
+      depotIds: number[];
+    }
+    
+    const uniqueDepotMap = new Map<string, DepotInfo>();
     
     posms.forEach((posm) => {
       if (posm.depot_name && posm.depot_code) {
@@ -73,8 +80,13 @@ const DepotPOSMPage = () => {
       }
     });
     
-    // Array'e çevir ve isme göre sırala
-    return Array.from(uniqueDepotMap.values()).sort((a, b) => {
+    // Array'e çevir ve isme göre sırala (sadece id, name, code döndür)
+    return Array.from(uniqueDepotMap.values()).map(({ id, name, code, depotIds }) => ({
+      id,
+      name,
+      code,
+      depotIds, // Bu bilgiyi sakla ama döndürürken kullan
+    })).sort((a, b) => {
       const nameA = a.name.toLowerCase();
       const nameB = b.name.toLowerCase();
       if (nameA < nameB) return -1;
@@ -87,7 +99,10 @@ const DepotPOSMPage = () => {
   const selectedDepotIds = useMemo(() => {
     if (selectedDepot === null) return null;
     const selectedDepotInfo = depots.find(d => d.id === selectedDepot);
-    return selectedDepotInfo ? selectedDepotInfo.depotIds : [selectedDepot];
+    // Eğer bulunduysa depotIds kullan, bulunamadıysa sadece seçili depot_id'yi kullan
+    return selectedDepotInfo && (selectedDepotInfo as any).depotIds 
+      ? (selectedDepotInfo as any).depotIds 
+      : [selectedDepot];
   }, [selectedDepot, depots]);
 
   // Filtrelenmiş POSM listesi - memoize edilmiş
