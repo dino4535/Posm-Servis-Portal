@@ -13,5 +13,3 @@ README.md
 *.md
 uploads/*
 !uploads/.gitkeep
-tsconfig.json
-tsconfig.*.json
