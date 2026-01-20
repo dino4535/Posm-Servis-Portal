@@ -256,7 +256,6 @@ export const changePasswordController = async (
 
     // Yeni şifreyi hash'le ve güncelle
     const newPasswordHash = await hashPassword(newPassword);
-    const { query } = require('../config/database');
     await query(
       `UPDATE Users SET password_hash = @passwordHash, updated_at = ${getTurkeyDateSQL()} WHERE id = @id`,
       { passwordHash: newPasswordHash, id }
