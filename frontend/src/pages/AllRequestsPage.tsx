@@ -166,13 +166,12 @@ const AllRequestsPage = () => {
               <th>Yapılacak İş</th>
               <th>Yapılacak İşler Detayı</th>
               <th>Durum</th>
-              <th>İşlemler</th>
             </tr>
           </thead>
           <tbody>
             {requests.length === 0 ? (
               <tr>
-                <td colSpan={13} className="no-data">
+                <td colSpan={12} className="no-data">
                   Henüz talep bulunmuyor
                 </td>
               </tr>
@@ -194,58 +193,6 @@ const AllRequestsPage = () => {
                     <span className={`status-badge status-${request.durum.toLowerCase()}`}>
                       {request.durum}
                     </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <button
-                        className="detail-button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRequestClick(request);
-                        }}
-                      >
-                        Detay
-                      </button>
-                      {(request.durum === REQUEST_STATUS.BEKLEMEDE || 
-                        request.durum === REQUEST_STATUS.PLANLANDI ||
-                        request.durum === 'Beklemede' || 
-                        request.durum === 'Planlandı') && (
-                        <button
-                          className="cancel-button"
-                          onClick={(e) => handleCancel(request.id, e)}
-                          style={{
-                            padding: '6px 12px',
-                            background: '#f39c12',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          İptal
-                        </button>
-                      )}
-                      {isAdmin && (
-                        <button
-                          className="delete-button"
-                          onClick={(e) => handleDelete(request.id, e)}
-                          style={{
-                            padding: '6px 12px',
-                            background: '#e74c3c',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          Sil
-                        </button>
-                      )}
-                    </div>
                   </td>
                 </tr>
               ))
