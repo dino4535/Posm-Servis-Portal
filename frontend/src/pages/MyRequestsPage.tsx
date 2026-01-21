@@ -27,6 +27,7 @@ interface Request {
   posm_id?: number;
   posm_name?: string;
   yapilacak_is_detay?: string;
+  user_name?: string;
 }
 
 const MyRequestsPage = () => {
@@ -169,6 +170,7 @@ const MyRequestsPage = () => {
             <thead>
               <tr>
                 <th>Talep No</th>
+                <th>Açan Kullanıcı</th>
                 <th>Bayi Adı</th>
                 <th>Bayi Kodu</th>
                 <th>Depo</th>
@@ -185,7 +187,7 @@ const MyRequestsPage = () => {
             <tbody>
               {requests.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="no-data">
+                  <td colSpan={13} className="no-data">
                     Henüz talep oluşturulmamış
                   </td>
                 </tr>
@@ -193,6 +195,7 @@ const MyRequestsPage = () => {
                 requests.map((request) => (
                   <tr key={request.id} onClick={() => handleRequestClick(request)}>
                     <td>{request.request_no}</td>
+                    <td>{request.user_name || '-'}</td>
                     <td>{request.bayi_adi || '-'}</td>
                     <td>{request.bayi_kodu || '-'}</td>
                     <td>{request.depot_name || '-'}</td>
