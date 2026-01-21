@@ -104,7 +104,8 @@ const NewRequestPage = () => {
   }, [formData.territory_id]);
 
   useEffect(() => {
-    if (formData.depot_id && (formData.yapilacak_is === 'Montaj' || formData.yapilacak_is === 'Demontaj')) {
+    // POSM seçimi her zaman gösterilecek (depot_id seçildiğinde)
+    if (formData.depot_id) {
       const fetchPOSM = async () => {
         try {
           const response = await api.get(`/posm?depot_id=${formData.depot_id}`);
@@ -130,8 +131,9 @@ const NewRequestPage = () => {
     } else {
       setShowPosmSection(false);
       setSelectedPosmInfo(null);
+      setPosms([]);
     }
-  }, [formData.depot_id, formData.yapilacak_is]);
+  }, [formData.depot_id]);
 
   useEffect(() => {
     // Talep oluşturulduktan sonra fotoğrafları kontrol et
@@ -523,8 +525,8 @@ const NewRequestPage = () => {
           <select
             value={formData.yapilacak_is}
               onChange={(e) => {
-                setFormData({ ...formData, yapilacak_is: e.target.value, posm_id: '' });
-                setSelectedPosmInfo(null);
+                // Yapılacak iş değiştiğinde POSM seçimini temizleme (kullanıcı isterse seçebilir)
+                setFormData({ ...formData, yapilacak_is: e.target.value });
               }}
             required
           >
@@ -577,7 +579,7 @@ const NewRequestPage = () => {
 
         {showPosmSection && (
           <div className="form-group">
-            <label>POSM Seçimi *</label>
+            <label>POSM Seçimi</label>
             <select
               value={formData.posm_id}
               onChange={(e) => {
@@ -585,9 +587,8 @@ const NewRequestPage = () => {
                 setSelectedPosmInfo(selectedPosm || null);
                 setFormData({ ...formData, posm_id: e.target.value });
               }}
-              required
             >
-              <option value="">POSM Seçiniz</option>
+              <option value="">POSM Seçiniz (Opsiyonel)</option>
               {posms.map((posm) => (
                 <option key={posm.id} value={posm.id}>
                   {posm.name}
@@ -598,11 +599,14 @@ const NewRequestPage = () => {
               <div style={{ 
                 marginTop: '8px', 
                 padding: '10px', 
-                background: (formData.yapilacak_is === 'Montaj' && selectedPosmInfo.hazir_adet > 0) || formData.yapilacak_is === 'Demontaj' ? '#d4edda' : '#f8d7da',
-                border: `1px solid ${(formData.yapilacak_is === 'Montaj' && selectedPosmInfo.hazir_adet > 0) || formData.yapilacak_is === 'Demontaj' ? '#c3e6cb' : '#f5c6cb'}`,
+                background: formData.yapilacak_is === 'Bakım' ? '#e7f3ff' : 
+                           ((formData.yapilacak_is === 'Montaj' && selectedPosmInfo.hazir_adet > 0) || formData.yapilacak_is === 'Demontaj' ? '#d4edda' : '#f8d7da'),
+                border: `1px solid ${formData.yapilacak_is === 'Bakım' ? '#b3d9ff' : 
+                         ((formData.yapilacak_is === 'Montaj' && selectedPosmInfo.hazir_adet > 0) || formData.yapilacak_is === 'Demontaj' ? '#c3e6cb' : '#f5c6cb')}`,
                 borderRadius: '4px',
                 fontSize: '13px',
-                color: (formData.yapilacak_is === 'Montaj' && selectedPosmInfo.hazir_adet > 0) || formData.yapilacak_is === 'Demontaj' ? '#155724' : '#721c24'
+                color: formData.yapilacak_is === 'Bakım' ? '#004085' :
+                       ((formData.yapilacak_is === 'Montaj' && selectedPosmInfo.hazir_adet > 0) || formData.yapilacak_is === 'Demontaj' ? '#155724' : '#721c24')
               }}>
                 <strong>Envanter Bilgisi:</strong><br />
                 Hazır Adet: <strong>{selectedPosmInfo.hazir_adet || 0}</strong><br />
@@ -618,6 +622,11 @@ const NewRequestPage = () => {
                 {formData.yapilacak_is === 'Demontaj' && (
                   <span style={{ color: '#155724', fontSize: '12px', fontStyle: 'italic' }}>
                     ℹ️ Demontaj işleminde hazır stoktan düşülmez, mevcut POSM sökülür.
+                  </span>
+                )}
+                {formData.yapilacak_is === 'Bakım' && (
+                  <span style={{ color: '#004085', fontSize: '12px', fontStyle: 'italic' }}>
+                    ℹ️ Bakım işleminde POSM envanteri etkilenmez.
                   </span>
                 )}
               </div>

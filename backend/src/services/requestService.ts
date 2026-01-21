@@ -253,14 +253,7 @@ export const createRequest = async (data: CreateRequestData): Promise<Request> =
     throw new NotFoundError('Dealer');
   }
 
-  // POSM kontrolü (Montaj/Demontaj için gerekli)
-  if (
-    (data.yapilacak_is === REQUEST_TYPES.MONTAJ ||
-      data.yapilacak_is === REQUEST_TYPES.DEMONTAJ) &&
-    !data.posm_id
-  ) {
-    throw new ValidationError('Montaj/Demontaj için POSM seçimi zorunludur');
-  }
+  // POSM seçimi artık opsiyonel (Montaj/Demontaj için de zorunlu değil)
 
   if (data.posm_id) {
     // POSM kontrolü ve hazır adet kontrolü
@@ -356,10 +349,11 @@ export const createRequest = async (data: CreateRequestData): Promise<Request> =
   // POSM stok güncellemesi: Talep oluşturulduğunda
   // Montaj: hazir_adet düş, revize_adet artır
   // Demontaj: sadece revize_adet artır (hazir_adet düşmez)
+  // Bakım: Stok güncellemesi yapılmaz
   // NOT: Eğer otomatik transfer gerekiyorsa stok güncellemesi yapılmaz (transfer tamamlanana kadar)
   const autoTransferNeeded = (data as any).autoTransferNeeded;
   
-  if (data.posm_id && !autoTransferNeeded) {
+  if (data.posm_id && !autoTransferNeeded && data.yapilacak_is !== REQUEST_TYPES.BAKIM) {
     if (data.yapilacak_is === REQUEST_TYPES.MONTAJ) {
       // Montaj: hazır stoktan alınıyor
       await query(
