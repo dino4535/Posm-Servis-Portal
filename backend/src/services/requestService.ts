@@ -368,11 +368,12 @@ export const createRequest = async (data: CreateRequestData): Promise<Request> =
         { posmId: data.posm_id }
       );
     } else if (data.yapilacak_is === REQUEST_TYPES.DEMONTAJ) {
-      // Demontaj: mevcut POSM sökülüyor, hazır stoktan alınmıyor
+      // Demontaj: mevcut POSM sökülüyor, direkt tamir_bekleyen'e ekleniyor (revize_adet artmaz)
+      // Not: Tamamlandığında zaten tamir_bekleyen artacak, burada bir değişiklik yapmıyoruz
+      // Sadece updated_at güncelleniyor
       await query(
         `UPDATE POSM 
-         SET revize_adet = revize_adet + 1,
-             updated_at = ${getTurkeyDateSQL()}
+         SET updated_at = ${getTurkeyDateSQL()}
          WHERE id = @posmId`,
         { posmId: data.posm_id }
       );
@@ -633,13 +634,10 @@ export const updateRequest = async (
         params.tamamlayanUserId = updatedByUserId;
       }
 
-      // POSM stok güncellemesi: Talep tamamlandığında revize_adet düş
-      // Eğer Montaj veya Demontaj ise tamir_bekleyen artır
+      // POSM stok güncellemesi: Talep tamamlandığında
       if (oldRequest.posm_id) {
-        const isMontajOrDemontaj = oldRequest.yapilacak_is === REQUEST_TYPES.MONTAJ || oldRequest.yapilacak_is === REQUEST_TYPES.DEMONTAJ;
-        
-        if (isMontajOrDemontaj) {
-          // Montaj/Demontaj: revize_adet düş, tamir_bekleyen artır
+        if (oldRequest.yapilacak_is === REQUEST_TYPES.MONTAJ) {
+          // Montaj: revize_adet düş, tamir_bekleyen artır
           await query(
             `UPDATE POSM 
              SET revize_adet = CASE WHEN revize_adet > 0 THEN revize_adet - 1 ELSE 0 END,
@@ -648,8 +646,17 @@ export const updateRequest = async (
              WHERE id = @posmId`,
             { posmId: oldRequest.posm_id }
           );
+        } else if (oldRequest.yapilacak_is === REQUEST_TYPES.DEMONTAJ) {
+          // Demontaj: sadece tamir_bekleyen artır (revize_adet değişmez, çünkü oluşturulduğunda artmamıştı)
+          await query(
+            `UPDATE POSM 
+             SET tamir_bekleyen = tamir_bekleyen + 1,
+                 updated_at = ${getTurkeyDateSQL()}
+             WHERE id = @posmId`,
+            { posmId: oldRequest.posm_id }
+          );
         } else {
-          // Diğer işler: sadece revize_adet düş
+          // Diğer işler (Bakım): sadece revize_adet düş (eğer varsa)
           await query(
             `UPDATE POSM 
              SET revize_adet = CASE WHEN revize_adet > 0 THEN revize_adet - 1 ELSE 0 END,
@@ -854,13 +861,10 @@ export const completeRequest = async (
     updateParams
   );
 
-  // POSM stok güncellemesi: Talep tamamlandığında revize_adet düş
-  // Eğer Montaj veya Demontaj ise tamir_bekleyen artır
+  // POSM stok güncellemesi: Talep tamamlandığında
   if (request.posm_id) {
-    const isMontajOrDemontaj = request.yapilacak_is === REQUEST_TYPES.MONTAJ || request.yapilacak_is === REQUEST_TYPES.DEMONTAJ;
-    
-    if (isMontajOrDemontaj) {
-      // Montaj/Demontaj: revize_adet düş, tamir_bekleyen artır
+    if (request.yapilacak_is === REQUEST_TYPES.MONTAJ) {
+      // Montaj: revize_adet düş, tamir_bekleyen artır
       await query(
         `UPDATE POSM 
          SET revize_adet = CASE WHEN revize_adet > 0 THEN revize_adet - 1 ELSE 0 END,
@@ -869,8 +873,17 @@ export const completeRequest = async (
          WHERE id = @posmId`,
         { posmId: request.posm_id }
       );
+    } else if (request.yapilacak_is === REQUEST_TYPES.DEMONTAJ) {
+      // Demontaj: sadece tamir_bekleyen artır (revize_adet değişmez, çünkü oluşturulduğunda artmamıştı)
+      await query(
+        `UPDATE POSM 
+         SET tamir_bekleyen = tamir_bekleyen + 1,
+             updated_at = ${getTurkeyDateSQL()}
+         WHERE id = @posmId`,
+        { posmId: request.posm_id }
+      );
     } else {
-      // Diğer işler: sadece revize_adet düş
+      // Diğer işler (Bakım): sadece revize_adet düş (eğer varsa)
       await query(
         `UPDATE POSM 
          SET revize_adet = CASE WHEN revize_adet > 0 THEN revize_adet - 1 ELSE 0 END,
@@ -959,12 +972,10 @@ export const cancelRequest = async (
 
   // POSM stok geri alma: Eğer talep iptal ediliyorsa ve POSM varsa, stokları geri al
   if (request.posm_id) {
-    const isMontajOrDemontaj = request.yapilacak_is === REQUEST_TYPES.MONTAJ || request.yapilacak_is === REQUEST_TYPES.DEMONTAJ;
-    
     if (oldStatus === REQUEST_STATUS.TAMAMLANDI) {
       // Tamamlanmış talep iptal ediliyor - tamamlanma işleminde yapılan güncellemeleri geri al
-      if (isMontajOrDemontaj) {
-        // Tamamlanma işleminde: revize_adet - 1, tamir_bekleyen + 1
+      if (request.yapilacak_is === REQUEST_TYPES.MONTAJ) {
+        // Montaj tamamlanma işleminde: revize_adet - 1, tamir_bekleyen + 1
         // Geri al: revize_adet + 1, tamir_bekleyen - 1
         await query(
           `UPDATE POSM 
@@ -974,21 +985,7 @@ export const cancelRequest = async (
            WHERE id = @posmId`,
           { posmId: request.posm_id }
         );
-      } else {
-        // Diğer işler: tamamlanma işleminde sadece revize_adet - 1
-        // Geri al: revize_adet + 1
-        await query(
-          `UPDATE POSM 
-           SET revize_adet = revize_adet + 1,
-               updated_at = ${getTurkeyDateSQL()}
-           WHERE id = @posmId`,
-          { posmId: request.posm_id }
-        );
-      }
-      
-      // Ayrıca oluşturulduğunda yapılan güncellemeleri de geri al
-      if (request.yapilacak_is === REQUEST_TYPES.MONTAJ) {
-        // Oluşturulduğunda: hazir_adet - 1, revize_adet + 1
+        // Ayrıca oluşturulduğunda: hazir_adet - 1, revize_adet + 1
         // Tamamlanma işleminde: revize_adet - 1 (yukarıda + 1 yaptık, net: 0)
         // Geri al: hazir_adet + 1
         await query(
@@ -998,9 +995,28 @@ export const cancelRequest = async (
            WHERE id = @posmId`,
           { posmId: request.posm_id }
         );
+      } else if (request.yapilacak_is === REQUEST_TYPES.DEMONTAJ) {
+        // Demontaj tamamlanma işleminde: sadece tamir_bekleyen + 1
+        // Geri al: tamir_bekleyen - 1
+        // Oluşturulduğunda stok değişikliği yok, sadece tamamlanma işlemini geri al
+        await query(
+          `UPDATE POSM 
+           SET tamir_bekleyen = CASE WHEN tamir_bekleyen > 0 THEN tamir_bekleyen - 1 ELSE 0 END,
+               updated_at = ${getTurkeyDateSQL()}
+           WHERE id = @posmId`,
+          { posmId: request.posm_id }
+        );
+      } else {
+        // Diğer işler (Bakım): tamamlanma işleminde sadece revize_adet - 1
+        // Geri al: revize_adet + 1
+        await query(
+          `UPDATE POSM 
+           SET revize_adet = revize_adet + 1,
+               updated_at = ${getTurkeyDateSQL()}
+           WHERE id = @posmId`,
+          { posmId: request.posm_id }
+        );
       }
-      // Demontaj için oluşturulduğunda sadece revize_adet + 1 yapılmıştı,
-      // tamamlanma işleminde - 1 yapıldı, yukarıda + 1 yaptık, net: +1 (doğru)
     } else if (oldStatus === REQUEST_STATUS.BEKLEMEDE || oldStatus === REQUEST_STATUS.PLANLANDI) {
       // Beklemede veya Planlandı durumundaki talep iptal ediliyor - oluşturulduğunda yapılan güncellemeleri geri al
       if (request.yapilacak_is === REQUEST_TYPES.MONTAJ) {
@@ -1015,14 +1031,7 @@ export const cancelRequest = async (
           { posmId: request.posm_id }
         );
       } else if (request.yapilacak_is === REQUEST_TYPES.DEMONTAJ) {
-        // Demontaj için sadece revize_adet artırılmıştı, onu geri al
-        await query(
-          `UPDATE POSM 
-           SET revize_adet = CASE WHEN revize_adet > 0 THEN revize_adet - 1 ELSE 0 END,
-               updated_at = ${getTurkeyDateSQL()}
-           WHERE id = @posmId`,
-          { posmId: request.posm_id }
-        );
+        // Demontaj için oluşturulduğunda stok değişikliği yok, geri alma gerekmez
       }
     }
   }
@@ -1127,8 +1136,6 @@ export const deleteRequest = async (id: number): Promise<void> => {
 
   // POSM stok geri alma: Talep silinirken POSM stoklarını geri al
   if (request.posm_id) {
-    const isMontajOrDemontaj = request.yapilacak_is === REQUEST_TYPES.MONTAJ || request.yapilacak_is === REQUEST_TYPES.DEMONTAJ;
-    
     if (request.durum === REQUEST_STATUS.TAMAMLANDI) {
       // Tamamlanmış talep siliniyor
       // Oluşturulduğunda ve tamamlanma işleminde yapılan tüm güncellemeleri geri al
@@ -1147,9 +1154,8 @@ export const deleteRequest = async (id: number): Promise<void> => {
           { posmId: request.posm_id }
         );
       } else if (request.yapilacak_is === REQUEST_TYPES.DEMONTAJ) {
-        // Oluşturulduğunda: revize_adet + 1
-        // Tamamlanma işleminde: revize_adet - 1, tamir_bekleyen + 1
-        // Net: tamir_bekleyen + 1
+        // Oluşturulduğunda: stok değişikliği yok
+        // Tamamlanma işleminde: tamir_bekleyen + 1
         // Geri al: tamir_bekleyen - 1
         await query(
           `UPDATE POSM 
@@ -1184,15 +1190,7 @@ export const deleteRequest = async (id: number): Promise<void> => {
           { posmId: request.posm_id }
         );
       } else if (request.yapilacak_is === REQUEST_TYPES.DEMONTAJ) {
-        // Oluşturulduğunda: sadece revize_adet + 1
-        // Geri al: revize_adet - 1
-        await query(
-          `UPDATE POSM 
-           SET revize_adet = CASE WHEN revize_adet > 0 THEN revize_adet - 1 ELSE 0 END,
-               updated_at = ${getTurkeyDateSQL()}
-           WHERE id = @posmId`,
-          { posmId: request.posm_id }
-        );
+        // Demontaj için oluşturulduğunda stok değişikliği yok, geri alma gerekmez
       }
     }
     // İPTAL durumunda zaten stoklar geri alınmış olmalı, tekrar geri alma gerekmez
