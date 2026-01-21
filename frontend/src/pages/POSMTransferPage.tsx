@@ -39,9 +39,16 @@ const POSMTransferPage = () => {
 
   useEffect(() => {
     fetchTransfers();
-    fetchPOSMs();
     fetchDepots();
   }, [filterStatus]);
+
+  // userDepots değiştiğinde POSM'leri yeniden yükle
+  useEffect(() => {
+    if (userDepots.length > 0) {
+      fetchPOSMs();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userDepots]);
 
   // Form açıldığında, kullanıcının tek deposu varsa otomatik seç
   useEffect(() => {
@@ -78,7 +85,27 @@ const POSMTransferPage = () => {
     try {
       const response = await api.get('/posm/my-depots');
       if (response.data.success) {
-        setPosms(response.data.data);
+        // Ek güvenlik: Frontend'de de kullanıcının depolarına göre filtrele
+        const userDepotIds = userDepots.map(d => Number(d.id));
+        console.log('Kullanıcı Depo ID\'leri:', userDepotIds);
+        console.log('Backend\'den gelen POSM sayısı:', response.data.data.length);
+        
+        const filteredPosms = response.data.data.filter((posm: any) => {
+          const posmDepotId = typeof posm.depot_id === 'string' 
+            ? parseInt(posm.depot_id.split(',')[0].trim(), 10) 
+            : Number(posm.depot_id);
+          
+          const isInUserDepots = userDepotIds.includes(posmDepotId);
+          
+          if (!isInUserDepots) {
+            console.warn(`POSM ${posm.name} (depot_id: ${posmDepotId}) kullanıcının depolarında değil. Kullanıcı depoları:`, userDepotIds);
+          }
+          
+          return isInUserDepots;
+        });
+        
+        console.log('Filtrelenmiş POSM sayısı:', filteredPosms.length);
+        setPosms(filteredPosms);
       }
     } catch (error) {
       console.error('POSM\'ler yüklenirken hata:', error);
