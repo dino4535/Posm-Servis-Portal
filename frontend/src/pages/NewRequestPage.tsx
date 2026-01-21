@@ -579,7 +579,7 @@ const NewRequestPage = () => {
 
         {showPosmSection && (
           <div className="form-group">
-            <label>POSM Seçimi</label>
+            <label>POSM Seçimi {(formData.yapilacak_is === 'Montaj' || formData.yapilacak_is === 'Demontaj') ? '*' : ''}</label>
             <select
               value={formData.posm_id}
               onChange={(e) => {
@@ -587,8 +587,9 @@ const NewRequestPage = () => {
                 setSelectedPosmInfo(selectedPosm || null);
                 setFormData({ ...formData, posm_id: e.target.value });
               }}
+              required={formData.yapilacak_is === 'Montaj' || formData.yapilacak_is === 'Demontaj'}
             >
-              <option value="">POSM Seçiniz (Opsiyonel)</option>
+              <option value="">POSM Seçiniz {formData.yapilacak_is === 'Bakım' ? '(Opsiyonel)' : ''}</option>
               {posms.map((posm) => (
                 <option key={posm.id} value={posm.id}>
                   {posm.name}
