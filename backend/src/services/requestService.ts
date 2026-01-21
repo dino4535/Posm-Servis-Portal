@@ -253,13 +253,9 @@ export const createRequest = async (data: CreateRequestData): Promise<Request> =
     throw new NotFoundError('Dealer');
   }
 
-  // POSM kontrolü (Montaj/Demontaj için zorunlu, Bakım için opsiyonel)
-  if (
-    (data.yapilacak_is === REQUEST_TYPES.MONTAJ ||
-      data.yapilacak_is === REQUEST_TYPES.DEMONTAJ) &&
-    !data.posm_id
-  ) {
-    throw new ValidationError('Montaj/Demontaj için POSM seçimi zorunludur');
+  // POSM kontrolü (Tüm iş tipleri için zorunlu - stok takibi için)
+  if (!data.posm_id) {
+    throw new ValidationError('POSM seçimi zorunludur');
   }
 
   if (data.posm_id) {
