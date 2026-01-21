@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useDepot } from '../hooks/useDepot';
 import ConfirmModal from '../components/ConfirmModal';
 import { formatDate } from '../utils/helpers';
 import '../styles/POSMTransferPage.css';
 
 const POSMTransferPage = () => {
-  const { user, isAdmin, isTeknik } = useAuth();
+  const { isAdmin, isTeknik } = useAuth();
   const { showSuccess, showError } = useToast();
+  const { depots: userDepots, selectedDepot } = useDepot();
   const [transfers, setTransfers] = useState<any[]>([]);
   const [posms, setPosms] = useState<any[]>([]);
   const [depots, setDepots] = useState<any[]>([]);
@@ -41,6 +43,21 @@ const POSMTransferPage = () => {
     fetchDepots();
   }, [filterStatus]);
 
+  // Form açıldığında, kullanıcının tek deposu varsa otomatik seç
+  useEffect(() => {
+    if (showForm && userDepots.length === 1 && !formData.from_depot_id) {
+      setFormData(prev => ({
+        ...prev,
+        from_depot_id: userDepots[0].id.toString()
+      }));
+    } else if (showForm && selectedDepot && !formData.from_depot_id) {
+      setFormData(prev => ({
+        ...prev,
+        from_depot_id: selectedDepot.id.toString()
+      }));
+    }
+  }, [showForm, userDepots, selectedDepot]);
+
   const fetchTransfers = async () => {
     setLoading(true);
     try {
@@ -56,9 +73,10 @@ const POSMTransferPage = () => {
     }
   };
 
+  // Kullanıcının kendi depolarındaki POSM'leri getir
   const fetchPOSMs = async () => {
     try {
-      const response = await api.get('/posm');
+      const response = await api.get('/posm/my-depots');
       if (response.data.success) {
         setPosms(response.data.data);
       }
@@ -152,9 +170,14 @@ const POSMTransferPage = () => {
   };
 
   const resetForm = () => {
+    // Form sıfırlanırken, kullanıcının deposunu otomatik seç
+    const defaultFromDepot = userDepots.length === 1 
+      ? userDepots[0].id.toString() 
+      : (selectedDepot ? selectedDepot.id.toString() : '');
+    
     setFormData({
       posm_id: '',
-      from_depot_id: '',
+      from_depot_id: defaultFromDepot,
       to_depot_id: '',
       quantity: '',
       transfer_type: 'Hazir',
@@ -268,7 +291,7 @@ const POSMTransferPage = () => {
                     .filter((d) => d.id.toString() !== formData.from_depot_id)
                     .map((depot) => (
                       <option key={depot.id} value={depot.id}>
-                        {depot.name}
+                        {depot.name} {depot.code ? `(${depot.code})` : ''}
                       </option>
                     ))}
                 </select>
