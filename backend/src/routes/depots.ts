@@ -3,6 +3,7 @@ import { authenticate } from '../middleware/auth';
 import { isAdmin } from '../middleware/authorize';
 import {
   getAllDepotsController,
+  getAllActiveDepotsController,
   getDepotByIdController,
   createDepotController,
   updateDepotController,
@@ -13,6 +14,8 @@ const router = Router();
 
 // Tüm kullanıcılar kendi depolarını görebilir
 router.get('/', authenticate, getAllDepotsController);
+// Tüm aktif depoları getir (transfer hedef depo seçimi için)
+router.get('/all-active', authenticate, getAllActiveDepotsController);
 router.get('/:id', authenticate, getDepotByIdController);
 
 // Admin only routes

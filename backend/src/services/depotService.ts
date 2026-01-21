@@ -50,6 +50,16 @@ export const getAllDepots = async (userId?: number, role?: string): Promise<Depo
   return [];
 };
 
+// Tüm aktif depoları getir (transfer hedef depo seçimi için)
+export const getAllActiveDepots = async (): Promise<Depot[]> => {
+  return query<Depot>(
+    `SELECT id, name, code, address, is_active, created_at, updated_at 
+     FROM Depots 
+     WHERE is_active = 1
+     ORDER BY name`
+  );
+};
+
 export const getDepotById = async (id: number): Promise<Depot> => {
   const depots = await query<Depot>(
     `SELECT id, name, code, address, is_active, created_at, updated_at 

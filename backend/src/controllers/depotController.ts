@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import {
   getAllDepots,
+  getAllActiveDepots,
   getDepotById,
   createDepot,
   updateDepot,
@@ -17,6 +18,19 @@ export const getAllDepotsController = async (
 ) => {
   try {
     const depots = await getAllDepots(req.user?.id, req.user?.role);
+    res.json({ success: true, data: depots });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllActiveDepotsController = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const depots = await getAllActiveDepots();
     res.json({ success: true, data: depots });
   } catch (error) {
     next(error);

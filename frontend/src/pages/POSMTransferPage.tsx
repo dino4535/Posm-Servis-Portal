@@ -14,6 +14,7 @@ const POSMTransferPage = () => {
   const [transfers, setTransfers] = useState<any[]>([]);
   const [posms, setPosms] = useState<any[]>([]);
   const [depots, setDepots] = useState<any[]>([]);
+  const [allActiveDepots, setAllActiveDepots] = useState<any[]>([]); // Hedef depo için tüm aktif depolar
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -120,6 +121,18 @@ const POSMTransferPage = () => {
       }
     } catch (error) {
       console.error('Depolar yüklenirken hata:', error);
+    }
+  };
+
+  // Hedef depo için tüm aktif depoları getir
+  const fetchAllActiveDepots = async () => {
+    try {
+      const response = await api.get('/depots/all-active');
+      if (response.data.success) {
+        setAllActiveDepots(response.data.data);
+      }
+    } catch (error) {
+      console.error('Tüm aktif depolar yüklenirken hata:', error);
     }
   };
 
@@ -314,7 +327,7 @@ const POSMTransferPage = () => {
                   required
                 >
                   <option value="">Depo Seçiniz</option>
-                  {depots
+                  {allActiveDepots
                     .filter((d) => d.id.toString() !== formData.from_depot_id)
                     .map((depot) => (
                       <option key={depot.id} value={depot.id}>
