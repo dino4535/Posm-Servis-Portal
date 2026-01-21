@@ -41,6 +41,7 @@ const POSMTransferPage = () => {
   useEffect(() => {
     fetchTransfers();
     fetchDepots();
+    fetchAllActiveDepots(); // Hedef depo için tüm aktif depoları yükle
   }, [filterStatus]);
 
   // userDepots değiştiğinde POSM'leri yeniden yükle
@@ -129,10 +130,12 @@ const POSMTransferPage = () => {
     try {
       const response = await api.get('/depots/all-active');
       if (response.data.success) {
+        console.log('Tüm aktif depolar yüklendi:', response.data.data.length, 'depot');
         setAllActiveDepots(response.data.data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Tüm aktif depolar yüklenirken hata:', error);
+      console.error('Hata detayı:', error.response?.data);
     }
   };
 
@@ -327,14 +330,23 @@ const POSMTransferPage = () => {
                   required
                 >
                   <option value="">Depo Seçiniz</option>
-                  {allActiveDepots
-                    .filter((d) => d.id.toString() !== formData.from_depot_id)
-                    .map((depot) => (
-                      <option key={depot.id} value={depot.id}>
-                        {depot.name} {depot.code ? `(${depot.code})` : ''}
-                      </option>
-                    ))}
+                  {allActiveDepots.length > 0 ? (
+                    allActiveDepots
+                      .filter((d) => d.id.toString() !== formData.from_depot_id)
+                      .map((depot) => (
+                        <option key={depot.id} value={depot.id}>
+                          {depot.name} {depot.code ? `(${depot.code})` : ''}
+                        </option>
+                      ))
+                  ) : (
+                    <option value="" disabled>Yükleniyor...</option>
+                  )}
                 </select>
+                {allActiveDepots.length === 0 && (
+                  <small style={{ color: '#666', fontSize: '12px', display: 'block', marginTop: '4px' }}>
+                    Depolar yükleniyor...
+                  </small>
+                )}
               </div>
               <div className="form-group">
                 <label>Miktar *</label>
