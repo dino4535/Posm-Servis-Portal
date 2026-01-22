@@ -190,17 +190,6 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
     }
   };
 
-  const handleCompleteClick = () => {
-    setWasUsed(false);
-    setUsedQuantity('');
-    setCompleteNotes('');
-    setCompletePhotos([]);
-    setPhotoPreviews([]);
-    setShowCompleteModal(true);
-    setCompleteNotes('');
-    setCompletePhotos([]);
-    setPhotoPreviews([]);
-  };
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -240,7 +229,7 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
         currentRequest.posm_name && 
         currentRequest.posm_name.toUpperCase().includes('PUSHER') &&
         (!usedQuantity || parseInt(usedQuantity, 10) <= 0)) {
-      showWarning('Pusher kullanıldıysa lütfen kullanılan miktarı girin');
+      showWarning('PUSHER kullanıldıysa lütfen kullanılan Pusher miktarını girin');
       return;
     }
 
@@ -805,33 +794,35 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
               </div>
 
               <div>
-                {/* Kullanıldı mı? sorusu - Tüm işler için */}
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', fontWeight: 600, color: '#495057' }}>
-                    <input
-                      type="checkbox"
-                      checked={wasUsed}
-                      onChange={(e) => {
-                        setWasUsed(e.target.checked);
-                        if (!e.target.checked) {
-                          setUsedQuantity('');
-                        }
-                      }}
-                      disabled={loading}
-                      style={{ marginRight: '8px', width: '18px', height: '18px' }}
-                    />
-                    Kullanıldı mı?
-                  </label>
-                  <p style={{ fontSize: '12px', color: '#6c757d', marginLeft: '26px' }}>
-                    İşlem sırasında POSM kullanıldıysa işaretleyin
-                  </p>
-                </div>
+                {/* Kullanıldı mı? sorusu - Sadece PUSHER için */}
+                {currentRequest.posm_name && currentRequest.posm_name.toUpperCase().includes('PUSHER') && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', fontWeight: 600, color: '#495057' }}>
+                      <input
+                        type="checkbox"
+                        checked={wasUsed}
+                        onChange={(e) => {
+                          setWasUsed(e.target.checked);
+                          if (!e.target.checked) {
+                            setUsedQuantity('');
+                          }
+                        }}
+                        disabled={loading}
+                        style={{ marginRight: '8px', width: '18px', height: '18px' }}
+                      />
+                      Kullanıldı mı?
+                    </label>
+                    <p style={{ fontSize: '12px', color: '#6c757d', marginLeft: '26px' }}>
+                      İşlem sırasında PUSHER kullanıldıysa işaretleyin
+                    </p>
+                  </div>
+                )}
 
-                {/* Kullanılan miktar - PUSHER ve kullanıldı seçildiğinde */}
+                {/* Kullanılan Pusher miktarı - PUSHER ve kullanıldı seçildiğinde */}
                 {wasUsed && currentRequest.posm_name && currentRequest.posm_name.toUpperCase().includes('PUSHER') && (
                   <div style={{ marginBottom: '20px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#495057' }}>
-                      Kullanılan Miktar <span style={{ color: '#e74c3c' }}>*</span>
+                      Kullanılan Pusher Miktarı <span style={{ color: '#e74c3c' }}>*</span>
                     </label>
                     <input
                       type="number"
@@ -839,7 +830,7 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
                       value={usedQuantity}
                       onChange={(e) => setUsedQuantity(e.target.value)}
                       disabled={loading}
-                      placeholder="Kullanılan adet miktarını girin"
+                      placeholder="Kullanılan Pusher adet miktarını girin"
                       required
                       style={{
                         width: '100%',
@@ -850,7 +841,7 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
                       }}
                     />
                     <p style={{ fontSize: '12px', color: '#6c757d', marginTop: '4px' }}>
-                      ℹ️ Pusher için kullanılan adet miktarını girin. Bu miktar hazır envanterden düşülecektir.
+                      ℹ️ Kullanılan Pusher adet miktarını girin. Bu miktar hazır envanterden düşülecektir.
                     </p>
                   </div>
                 )}
