@@ -50,6 +50,8 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
   const [showPhotoViewer, setShowPhotoViewer] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeNotes, setCompleteNotes] = useState('');
+  const [wasUsed, setWasUsed] = useState(false);
+  const [usedQuantity, setUsedQuantity] = useState('');
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     message: string;
@@ -189,6 +191,11 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
   };
 
   const handleCompleteClick = () => {
+    setWasUsed(false);
+    setUsedQuantity('');
+    setCompleteNotes('');
+    setCompletePhotos([]);
+    setPhotoPreviews([]);
     setShowCompleteModal(true);
     setCompleteNotes('');
     setCompletePhotos([]);
@@ -228,6 +235,15 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
       return;
     }
 
+    // PUSHER ve kullanıldı seçildiğinde miktar kontrolü
+    if (wasUsed && 
+        currentRequest.posm_name && 
+        currentRequest.posm_name.toUpperCase().includes('PUSHER') &&
+        (!usedQuantity || parseInt(usedQuantity, 10) <= 0)) {
+      showWarning('Pusher kullanıldıysa lütfen kullanılan miktarı girin');
+      return;
+    }
+
     setLoading(true);
     setUploadingPhotos(true);
 
@@ -245,9 +261,11 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
         },
       });
 
-      // Sonra talebi tamamla (notlar ile birlikte)
+      // Sonra talebi tamamla (notlar, kullanıldı mı, kullanılan miktar ile birlikte)
       const response = await api.put(`/requests/${currentRequest.id}/complete`, {
         notes: completeNotes.trim() || undefined,
+        was_used: wasUsed,
+        used_quantity: wasUsed && usedQuantity ? parseInt(usedQuantity, 10) : null,
       });
 
       if (response.data.success) {
@@ -612,13 +630,20 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
             {!isEditing ? (
               <>
                 {canComplete && (
-                  <button
-                    className="action-button complete-button"
-                    onClick={handleCompleteClick}
-                    disabled={loading}
-                  >
-                    Tamamla
-                  </button>
+              <button
+                className="action-button complete-button"
+                onClick={() => {
+                  setWasUsed(false);
+                  setUsedQuantity('');
+                  setCompleteNotes('');
+                  setCompletePhotos([]);
+                  setPhotoPreviews([]);
+                  setShowCompleteModal(true);
+                }}
+                disabled={loading}
+              >
+                Tamamla
+              </button>
                 )}
                 {canCancel && (
                   <button
@@ -780,6 +805,56 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({ request, onClos
               </div>
 
               <div>
+                {/* Kullanıldı mı? sorusu - Tüm işler için */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', fontWeight: 600, color: '#495057' }}>
+                    <input
+                      type="checkbox"
+                      checked={wasUsed}
+                      onChange={(e) => {
+                        setWasUsed(e.target.checked);
+                        if (!e.target.checked) {
+                          setUsedQuantity('');
+                        }
+                      }}
+                      disabled={loading}
+                      style={{ marginRight: '8px', width: '18px', height: '18px' }}
+                    />
+                    Kullanıldı mı?
+                  </label>
+                  <p style={{ fontSize: '12px', color: '#6c757d', marginLeft: '26px' }}>
+                    İşlem sırasında POSM kullanıldıysa işaretleyin
+                  </p>
+                </div>
+
+                {/* Kullanılan miktar - PUSHER ve kullanıldı seçildiğinde */}
+                {wasUsed && currentRequest.posm_name && currentRequest.posm_name.toUpperCase().includes('PUSHER') && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#495057' }}>
+                      Kullanılan Miktar <span style={{ color: '#e74c3c' }}>*</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={usedQuantity}
+                      onChange={(e) => setUsedQuantity(e.target.value)}
+                      disabled={loading}
+                      placeholder="Kullanılan adet miktarını girin"
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        border: '2px solid #dee2e6',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                      }}
+                    />
+                    <p style={{ fontSize: '12px', color: '#6c757d', marginTop: '4px' }}>
+                      ℹ️ Pusher için kullanılan adet miktarını girin. Bu miktar hazır envanterden düşülecektir.
+                    </p>
+                  </div>
+                )}
+
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#495057' }}>
                   Notlar (Opsiyonel)
                 </label>

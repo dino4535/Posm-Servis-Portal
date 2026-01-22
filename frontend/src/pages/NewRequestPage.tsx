@@ -22,6 +22,7 @@ const NewRequestPage = () => {
     istenen_tarih: '',
     posm_id: '',
     priority: '0', // 0: Normal, 1: Yüksek, 2: Acil
+    quantity: '', // PUSHER için adet
   });
   const [depots, setDepots] = useState<any[]>([]);
   const [territories, setTerritories] = useState<any[]>([]);
@@ -250,6 +251,16 @@ const NewRequestPage = () => {
       return;
     }
 
+    // PUSHER için adet kontrolü
+    if (selectedPosmInfo && 
+        selectedPosmInfo.name && 
+        selectedPosmInfo.name.toUpperCase().includes('PUSHER') &&
+        (formData.yapilacak_is === 'Montaj' || formData.yapilacak_is === 'Demontaj') &&
+        (!formData.quantity || parseInt(formData.quantity, 10) <= 0)) {
+      showWarning('Pusher için kullanılacak adet miktarını girin');
+      return;
+    }
+
     setLoading(true);
     setPhotoError('');
 
@@ -261,6 +272,7 @@ const NewRequestPage = () => {
         dealer_id: selectedDealer?.id || parseInt(formData.dealer_id, 10),
         posm_id: formData.posm_id ? parseInt(formData.posm_id, 10) : null,
         priority: parseInt(formData.priority, 10),
+        quantity: formData.quantity ? parseInt(formData.quantity, 10) : null,
       });
       if (response.data.success) {
         setCreatedRequestId(response.data.data.id);
@@ -585,7 +597,7 @@ const NewRequestPage = () => {
               onChange={(e) => {
                 const selectedPosm = posms.find((p) => p.id.toString() === e.target.value);
                 setSelectedPosmInfo(selectedPosm || null);
-                setFormData({ ...formData, posm_id: e.target.value });
+                setFormData({ ...formData, posm_id: e.target.value, quantity: '' });
               }}
               required
             >
@@ -632,6 +644,35 @@ const NewRequestPage = () => {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* PUSHER için adet sorusu - Montaj veya Demontaj seçildiğinde */}
+        {showPosmSection && 
+         selectedPosmInfo && 
+         (formData.yapilacak_is === 'Montaj' || formData.yapilacak_is === 'Demontaj') &&
+         selectedPosmInfo.name && 
+         selectedPosmInfo.name.toUpperCase().includes('PUSHER') && (
+          <div className="form-group">
+            <label>Kullanılacak Adet *</label>
+            <input
+              type="number"
+              min="1"
+              value={formData.quantity}
+              onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+              placeholder="Kullanılacak adet miktarını girin"
+              required
+              style={{
+                width: '100%',
+                padding: '10px',
+                border: '2px solid #dee2e6',
+                borderRadius: '8px',
+                fontSize: '14px',
+              }}
+            />
+            <p style={{ fontSize: '12px', color: '#6c757d', marginTop: '4px' }}>
+              ℹ️ Pusher için kullanılacak adet miktarını girin
+            </p>
           </div>
         )}
 

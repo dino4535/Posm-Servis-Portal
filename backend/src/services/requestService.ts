@@ -47,6 +47,7 @@ export interface CreateRequestData {
   istenen_tarih: string;
   posm_id?: number;
   priority?: number;
+  quantity?: number; // PUSHER için adet
 }
 
 export interface UpdateRequestData {
@@ -272,6 +273,14 @@ export const createRequest = async (data: CreateRequestData): Promise<Request> =
 
     const posm = posms[0];
     
+    // PUSHER için quantity kontrolü
+    const isPusher = posm.name && posm.name.toUpperCase().includes('PUSHER');
+    if (isPusher && (data.yapilacak_is === REQUEST_TYPES.MONTAJ || data.yapilacak_is === REQUEST_TYPES.DEMONTAJ)) {
+      if (!data.quantity || data.quantity <= 0) {
+        throw new ValidationError('Pusher için kullanılacak adet miktarı zorunludur');
+      }
+    }
+    
     // POSM'in seçilen depoda olup olmadığını kontrol et
     // Tip dönüşümü yaparak karşılaştır (string vs number sorununu önlemek için)
     const posmDepotId = typeof posm.depot_id === 'string' ? parseInt(posm.depot_id, 10) : posm.depot_id;
@@ -357,15 +366,23 @@ export const createRequest = async (data: CreateRequestData): Promise<Request> =
   const autoTransferNeeded = (data as any).autoTransferNeeded;
   
   if (data.posm_id && !autoTransferNeeded && data.yapilacak_is !== REQUEST_TYPES.BAKIM) {
+    const posmInfo = await query<any>(
+      `SELECT name FROM POSM WHERE id = @posmId`,
+      { posmId: data.posm_id }
+    );
+    const isPusher = posmInfo.length > 0 && posmInfo[0].name && posmInfo[0].name.toUpperCase().includes('PUSHER');
+    const quantity = isPusher && data.quantity ? data.quantity : 1;
+    
     if (data.yapilacak_is === REQUEST_TYPES.MONTAJ) {
       // Montaj: hazır stoktan alınıyor
+      // PUSHER için quantity kadar düş, diğerleri için 1
       await query(
         `UPDATE POSM 
-         SET hazir_adet = hazir_adet - 1,
-             revize_adet = revize_adet + 1,
+         SET hazir_adet = hazir_adet - @quantity,
+             revize_adet = revize_adet + @quantity,
              updated_at = ${getTurkeyDateSQL()}
-         WHERE id = @posmId AND hazir_adet > 0`,
-        { posmId: data.posm_id }
+         WHERE id = @posmId AND hazir_adet >= @quantity`,
+        { posmId: data.posm_id, quantity }
       );
     } else if (data.yapilacak_is === REQUEST_TYPES.DEMONTAJ) {
       // Demontaj: mevcut POSM sökülüyor, direkt tamir_bekleyen'e ekleniyor (revize_adet artmaz)
@@ -813,7 +830,9 @@ export const planRequest = async (
 export const completeRequest = async (
   id: number,
   userId: number,
-  notes?: string
+  notes?: string,
+  wasUsed?: boolean,
+  usedQuantity?: number
 ): Promise<Request> => {
   const request = await getRequestById(id);
 
@@ -863,25 +882,58 @@ export const completeRequest = async (
 
   // POSM stok güncellemesi: Talep tamamlandığında
   if (request.posm_id) {
+    // POSM bilgisini al (PUSHER kontrolü için)
+    const posmInfo = await query<any>(
+      `SELECT name FROM POSM WHERE id = @posmId`,
+      { posmId: request.posm_id }
+    );
+    const isPusher = posmInfo.length > 0 && posmInfo[0].name && posmInfo[0].name.toUpperCase().includes('PUSHER');
+    
     if (request.yapilacak_is === REQUEST_TYPES.MONTAJ) {
       // Montaj: revize_adet düş, tamir_bekleyen artır
+      // PUSHER için quantity kullan, değilse 1
+      const quantity = isPusher && usedQuantity ? usedQuantity : 1;
       await query(
         `UPDATE POSM 
-         SET revize_adet = CASE WHEN revize_adet > 0 THEN revize_adet - 1 ELSE 0 END,
-             tamir_bekleyen = tamir_bekleyen + 1,
+         SET revize_adet = CASE WHEN revize_adet >= @quantity THEN revize_adet - @quantity ELSE 0 END,
+             tamir_bekleyen = tamir_bekleyen + @quantity,
              updated_at = ${getTurkeyDateSQL()}
          WHERE id = @posmId`,
-        { posmId: request.posm_id }
+        { posmId: request.posm_id, quantity }
       );
+      
+      // Eğer kullanıldıysa ve PUSHER ise, kullanılan miktarı hazır envanterden düş
+      if (wasUsed && isPusher && usedQuantity && usedQuantity > 0) {
+        await query(
+          `UPDATE POSM 
+           SET hazir_adet = CASE WHEN hazir_adet >= @usedQuantity THEN hazir_adet - @usedQuantity ELSE 0 END,
+               updated_at = ${getTurkeyDateSQL()}
+           WHERE id = @posmId`,
+          { posmId: request.posm_id, usedQuantity }
+        );
+      }
     } else if (request.yapilacak_is === REQUEST_TYPES.DEMONTAJ) {
       // Demontaj: sadece tamir_bekleyen artır (revize_adet değişmez, çünkü oluşturulduğunda artmamıştı)
+      // PUSHER için quantity kullan, değilse 1
+      const quantity = isPusher && usedQuantity ? usedQuantity : 1;
       await query(
         `UPDATE POSM 
-         SET tamir_bekleyen = tamir_bekleyen + 1,
+         SET tamir_bekleyen = tamir_bekleyen + @quantity,
              updated_at = ${getTurkeyDateSQL()}
          WHERE id = @posmId`,
-        { posmId: request.posm_id }
+        { posmId: request.posm_id, quantity }
       );
+      
+      // Eğer kullanıldıysa ve PUSHER ise, kullanılan miktarı hazır envanterden düş
+      if (wasUsed && isPusher && usedQuantity && usedQuantity > 0) {
+        await query(
+          `UPDATE POSM 
+           SET hazir_adet = CASE WHEN hazir_adet >= @usedQuantity THEN hazir_adet - @usedQuantity ELSE 0 END,
+               updated_at = ${getTurkeyDateSQL()}
+           WHERE id = @posmId`,
+          { posmId: request.posm_id, usedQuantity }
+        );
+      }
     } else {
       // Diğer işler (Bakım): sadece revize_adet düş (eğer varsa)
       await query(

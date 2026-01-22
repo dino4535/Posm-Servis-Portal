@@ -176,12 +176,18 @@ export const completeRequestController = async (
   try {
     const { id } = req.params;
     const requestId = parseInt(id, 10);
-    const { notes } = req.body; // Notlar body'den alınıyor
+    const { notes, was_used, used_quantity } = req.body; // Notlar, kullanıldı mı, kullanılan miktar body'den alınıyor
 
     // Yetkilendirme kontrolü
     await getRequestById(requestId, req.user?.id, req.user?.role);
 
-    const request = await completeRequest(requestId, req.user!.id, notes);
+    const request = await completeRequest(
+      requestId, 
+      req.user!.id, 
+      notes, 
+      was_used, 
+      used_quantity ? parseInt(used_quantity, 10) : undefined
+    );
 
     await createAuditLog(
       {
