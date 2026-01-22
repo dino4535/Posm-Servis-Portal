@@ -14,9 +14,11 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (_req, file, cb) => {
+    // Dosya isimlendirmesi controller'da yapılacak
+    // Burada geçici bir isim veriyoruz
     const sanitized = sanitizeFileName(file.originalname);
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}-${sanitized}`);
+    cb(null, `temp-${uniqueSuffix}-${sanitized}`);
   },
 });
 

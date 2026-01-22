@@ -11,6 +11,7 @@ import { AUDIT_ACTIONS } from '../config/constants';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/env';
+import { query } from '../config/database';
 
 export const getPhotosByRequestController = async (
   req: AuthRequest,
@@ -47,10 +48,47 @@ export const uploadPhotoController = async (
       });
     }
 
+    // Talep numarasını al
+    const requests = await query<any>(
+      `SELECT request_no FROM Requests WHERE id = @requestId`,
+      { requestId: parseInt(request_id, 10) }
+    );
+    
+    if (requests.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Talep bulunamadı',
+      });
+    }
+    
+    const requestNo = requests[0].request_no;
+    
+    // Bu talebe ait mevcut fotoğraf sayısını al
+    const existingPhotos = await query<any>(
+      `SELECT COUNT(*) as count FROM Photos WHERE request_id = @requestId`,
+      { requestId: parseInt(request_id, 10) }
+    );
+    
+    const photoCount = existingPhotos.length > 0 ? (existingPhotos[0].count || 0) : 0;
+    const nextPhotoNumber = photoCount + 1;
+    
+    // Dosya uzantısını al
+    const ext = path.extname(req.file.originalname) || path.extname(req.file.filename) || '.jpg';
+    
+    // Yeni dosya adı: talepnumarası-fotoğraf numarası.uzantı
+    const newFileName = `${requestNo}-${nextPhotoNumber}${ext}`;
+    const oldFilePath = path.join(config.upload.uploadPath, req.file.filename);
+    const newFilePath = path.join(config.upload.uploadPath, newFileName);
+    
+    // Dosya ismini değiştir
+    if (fs.existsSync(oldFilePath)) {
+      fs.renameSync(oldFilePath, newFilePath);
+    }
+
     const photo = await createPhoto(
       parseInt(request_id, 10),
       req.file.originalname,
-      req.file.filename,
+      newFileName,
       req.file.size,
       req.file.mimetype,
       req.user!.id
@@ -95,13 +133,52 @@ export const uploadPhotosController = async (
       });
     }
 
+    // Talep numarasını al
+    const requests = await query<any>(
+      `SELECT request_no FROM Requests WHERE id = @requestId`,
+      { requestId: parseInt(request_id, 10) }
+    );
+    
+    if (requests.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Talep bulunamadı',
+      });
+    }
+    
+    const requestNo = requests[0].request_no;
+    
     const uploadedPhotos = [];
     
-    for (const file of files) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      // Bu talebe ait mevcut fotoğraf sayısını al (bu dosya dahil)
+      const existingPhotos = await query<any>(
+        `SELECT COUNT(*) as count FROM Photos WHERE request_id = @requestId`,
+        { requestId: parseInt(request_id, 10) }
+      );
+      
+      const photoCount = existingPhotos.length > 0 ? (existingPhotos[0].count || 0) : 0;
+      const nextPhotoNumber = photoCount + i + 1;
+      
+      // Dosya uzantısını al
+      const ext = path.extname(file.originalname) || path.extname(file.filename) || '.jpg';
+      
+      // Yeni dosya adı: talepnumarası-fotoğraf numarası.uzantı
+      const newFileName = `${requestNo}-${nextPhotoNumber}${ext}`;
+      const oldFilePath = path.join(config.upload.uploadPath, file.filename);
+      const newFilePath = path.join(config.upload.uploadPath, newFileName);
+      
+      // Dosya ismini değiştir
+      if (fs.existsSync(oldFilePath)) {
+        fs.renameSync(oldFilePath, newFilePath);
+      }
+      
       const photo = await createPhoto(
         parseInt(request_id, 10),
         file.originalname,
-        file.filename,
+        newFileName,
         file.size,
         file.mimetype,
         req.user!.id
