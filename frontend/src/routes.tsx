@@ -70,9 +70,9 @@ const AppRoutes = () => {
         <Route
           path="all-requests"
           element={
-            <AdminRoute>
+            <AdminOrTeknikRoute>
               <AllRequestsPage />
-            </AdminRoute>
+            </AdminOrTeknikRoute>
           }
         />
         <Route

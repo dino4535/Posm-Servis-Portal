@@ -103,7 +103,7 @@ const MobileMenu = () => {
                     Taleplerim
                   </NavLink>
                 </li>
-                {isAdmin && (
+                {(isAdmin || isTeknik) && (
                   <li>
                     <NavLink to="/all-requests" onClick={closeMenu}>
                       <span className="mobile-menu-icon">📋</span>

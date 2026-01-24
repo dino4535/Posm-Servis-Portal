@@ -99,7 +99,7 @@ const Sidebar = () => {
               Taleplerim
             </NavLink>
           </li>
-          {isAdmin && (
+          {(isAdmin || isTeknik) && (
             <li>
               <NavLink to="/all-requests">
                 <span className="menu-icon">📋</span>
