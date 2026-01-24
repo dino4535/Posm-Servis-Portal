@@ -120,9 +120,9 @@
   min-height: 120px;
 }
 
-/* Hafta görünümünde gün hücrelerini aşağıya uzat */
+/* Hafta görünümü: gün hücreleri iş (etkinlik) geldikçe aşağıya doğru uzar */
 .fc-dayGridWeek-view .fc-daygrid-day-frame {
-  min-height: 280px;
+  min-height: 140px;
 }
 
 .fc-daygrid-day-number {

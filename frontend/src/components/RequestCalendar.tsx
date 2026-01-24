@@ -221,7 +221,7 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
         height="auto"
         dayMaxEvents={true}
         eventDisplay="block"
-        views={{ dayGridWeek: { contentHeight: 480 } }}
+        views={{ dayGridWeek: { contentHeight: 'auto', dayMaxEvents: false } }}
       />
     </div>
   );
