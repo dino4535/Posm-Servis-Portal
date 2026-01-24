@@ -106,8 +106,8 @@ export const getAllRequests = async (
     }
   }
 
-  // Taleplerim: Admin/Teknik için sadece kendi açtıkları talepler (User zaten user_id ile filtreleniyor)
-  if (filters?.my_only && userId && role !== 'User') {
+  // Taleplerim: Sadece Admin için "kendi açtığım" (user_id). Teknik için depolarındaki Beklemede/Planlandı yeterli (user_id ekleme).
+  if (filters?.my_only && userId && role === 'Admin') {
     whereConditions.push('r.user_id = @userId');
     params.userId = userId;
   }
