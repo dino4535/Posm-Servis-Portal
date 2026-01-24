@@ -14,6 +14,7 @@ interface Request {
   yapilacak_is: string;
   istenen_tarih: string;
   planlanan_tarih?: string;
+  planlanan_sira?: number;
   durum: string;
   user_name?: string;
   posm_name?: string;
@@ -37,7 +38,13 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
 
-  const events = requests.map((request) => {
+  const sorted = [...requests].sort((a, b) => {
+    const dA = (a.planlanan_tarih || a.istenen_tarih || '').toString().slice(0, 10);
+    const dB = (b.planlanan_tarih || b.istenen_tarih || '').toString().slice(0, 10);
+    if (dA !== dB) return dA.localeCompare(dB);
+    return (a.planlanan_sira ?? 9999) - (b.planlanan_sira ?? 9999) || a.id - b.id;
+  });
+  const events = sorted.map((request) => {
     const date = request.planlanan_tarih || request.istenen_tarih;
     let className = 'status-beklemede';
     if (request.durum === 'Tamamlandı') {
@@ -52,6 +59,7 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
       allDay: true,
       className,
       extendedProps: { request },
+      order: request.planlanan_sira ?? 9999,
     };
   });
 
@@ -73,6 +81,38 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
     const m = start.getMonth() + 1;
     const d = start.getDate();
     const planlanan_tarih = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const req = info.event.extendedProps?.request as Request | undefined;
+    const rawOld = (req?.planlanan_tarih || req?.istenen_tarih || '').toString();
+    const oldDate = rawOld.includes('T') ? rawOld.split('T')[0] : rawOld.slice(0, 10);
+
+    if (oldDate === planlanan_tarih) {
+      const cell = document.querySelector(`.fc-daygrid-day[data-date="${planlanan_tarih}"]`);
+      if (!cell) {
+        info.revert();
+        onUpdate?.();
+        onError?.('Sıra alınamadı');
+        return;
+      }
+      const ids = Array.from(cell.querySelectorAll('[data-request-id]'))
+        .map((el) => el.getAttribute('data-request-id'))
+        .filter(Boolean)
+        .map(Number);
+      if (ids.length === 0) {
+        info.revert();
+        onUpdate?.();
+        onError?.('Sıra alınamadı');
+        return;
+      }
+      try {
+        await api.put('/requests/reorder', { date: planlanan_tarih, request_ids: ids });
+        onUpdate?.();
+      } catch (e: any) {
+        info.revert();
+        onUpdate?.();
+        onError?.(e.response?.data?.error || 'Sıra güncellenemedi');
+      }
+      return;
+    }
     try {
       await api.put(`/requests/${id}`, { planlanan_tarih });
       onUpdate?.();
@@ -90,7 +130,7 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
     const acan = esc(r.user_name) || '-';
     const posm = esc(r.posm_name) || '-';
     return {
-      html: `<div class="fc-custom-event"><div class="ev-line1">${bayi} – ${is}</div><div class="ev-line2">Açan: ${acan} | POSM: ${posm}</div></div>`,
+      html: `<div class="fc-custom-event" data-request-id="${r.id}"><div class="ev-line1">${bayi} – ${is}</div><div class="ev-line2">Açan: ${acan} | POSM: ${posm}</div></div>`,
     };
   };
 
@@ -106,6 +146,7 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
         eventClick={handleEventClick}
         eventDrop={handleEventDrop}
         eventContent={eventContent}
+        eventOrder="order"
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',

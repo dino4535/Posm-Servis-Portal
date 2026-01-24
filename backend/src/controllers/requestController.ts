@@ -6,6 +6,7 @@ import {
   createRequest,
   updateRequest,
   planRequest,
+  reorderRequestsByDate,
   completeRequest,
   cancelRequest,
   getDashboardCounts,
@@ -123,6 +124,31 @@ export const updateRequestController = async (
     );
 
     res.json({ success: true, data: updatedRequest });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const reorderRequestsController = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { date, request_ids } = req.body;
+    if (!date || !Array.isArray(request_ids) || request_ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'date ve request_ids (dizi) gereklidir',
+      });
+    }
+    await reorderRequestsByDate(
+      date,
+      request_ids.map((x: any) => (typeof x === 'string' ? parseInt(x, 10) : x)),
+      req.user?.id,
+      req.user?.role
+    );
+    res.json({ success: true, message: 'Sıra güncellendi' });
   } catch (error) {
     next(error);
   }

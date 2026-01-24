@@ -7,6 +7,7 @@ import {
   createRequestController,
   updateRequestController,
   planRequestController,
+  reorderRequestsController,
   completeRequestController,
   cancelRequestController,
   getDashboardCountsController,
@@ -21,6 +22,7 @@ router.get('/dashboard/counts', getDashboardCountsController);
 router.get('/', getAllRequestsController);
 router.get('/:id', getRequestByIdController);
 router.post('/', createRequestController);
+router.put('/reorder', reorderRequestsController);
 router.put('/:id', updateRequestController);
 router.put('/:id/plan', isAdminOrTeknik, planRequestController);
 router.put('/:id/complete', isAdminOrTeknik, completeRequestController);

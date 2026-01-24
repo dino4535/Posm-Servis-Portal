@@ -27,6 +27,7 @@ export interface Request {
   yapilacak_is_detay?: string;
   istenen_tarih: Date;
   planlanan_tarih?: Date;
+  planlanan_sira?: number;
   tamamlanma_tarihi?: Date;
   tamamlayan_user_id?: number;
   posm_id?: number;
@@ -57,6 +58,7 @@ export interface UpdateRequestData {
   yapilacak_is_detay?: string;
   istenen_tarih?: string;
   planlanan_tarih?: string;
+  planlanan_sira?: number;
   posm_id?: number;
   durum?: string;
   priority?: number;
@@ -171,7 +173,7 @@ export const getAllRequests = async (
 
   const requests = await query<any>(
     `SELECT r.id, r.request_no, r.user_id, r.depot_id, r.territory_id, r.dealer_id,
-            r.yapilacak_is, r.yapilacak_is_detay, r.istenen_tarih, r.planlanan_tarih,
+            r.yapilacak_is, r.yapilacak_is_detay, r.istenen_tarih, r.planlanan_tarih, r.planlanan_sira,
             r.tamamlanma_tarihi, r.tamamlayan_user_id, r.posm_id, r.durum, r.priority,
             r.notes, r.created_at, r.updated_at,
             d.name as bayi_adi, d.code as bayi_kodu, d.latitude as bayi_latitude, d.longitude as bayi_longitude,
@@ -222,7 +224,7 @@ export const getRequestById = async (
 
   const requests = await query<any>(
     `SELECT r.id, r.request_no, r.user_id, r.depot_id, r.territory_id, r.dealer_id,
-            r.yapilacak_is, r.yapilacak_is_detay, r.istenen_tarih, r.planlanan_tarih,
+            r.yapilacak_is, r.yapilacak_is_detay, r.istenen_tarih, r.planlanan_tarih, r.planlanan_sira,
             r.tamamlanma_tarihi, r.tamamlayan_user_id, r.posm_id, r.durum, r.priority,
             r.notes, r.created_at, r.updated_at,
             d.name as bayi_adi, d.code as bayi_kodu, d.latitude as bayi_latitude, d.longitude as bayi_longitude,
@@ -627,6 +629,11 @@ export const updateRequest = async (
     params.planlananTarih = data.planlanan_tarih || null;
   }
 
+  if (data.planlanan_sira !== undefined) {
+    updates.push('planlanan_sira = @planlananSira');
+    params.planlananSira = data.planlanan_sira;
+  }
+
   if (data.posm_id !== undefined) {
     if (data.posm_id) {
       const posms = await query(`SELECT id FROM POSM WHERE id = @posmId`, {
@@ -766,6 +773,26 @@ export const updateRequest = async (
   }
 
   return updatedRequest;
+};
+
+/** Aynı güne ait taleplerin takvimdeki görüntülenme sırasını günceller. */
+export const reorderRequestsByDate = async (
+  date: string,
+  requestIds: number[],
+  userId?: number,
+  role?: string
+): Promise<void> => {
+  if (!requestIds || requestIds.length === 0) return;
+  for (const id of requestIds) {
+    await getRequestById(id, userId, role);
+  }
+  for (let i = 0; i < requestIds.length; i++) {
+    await query(
+      `UPDATE Requests SET planlanan_sira = @sira, updated_at = ${getTurkeyDateSQL()}
+       WHERE id = @id AND planlanan_tarih IS NOT NULL AND CAST(planlanan_tarih AS date) = CAST(@date AS date)`,
+      { id: requestIds[i], sira: i, date }
+    );
+  }
 };
 
 export const planRequest = async (
