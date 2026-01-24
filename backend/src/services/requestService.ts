@@ -789,7 +789,10 @@ export const reorderRequestsByDate = async (
   for (let i = 0; i < requestIds.length; i++) {
     await query(
       `UPDATE Requests SET planlanan_sira = @sira, updated_at = ${getTurkeyDateSQL()}
-       WHERE id = @id AND planlanan_tarih IS NOT NULL AND CAST(planlanan_tarih AS date) = CAST(@date AS date)`,
+       WHERE id = @id AND (
+         (planlanan_tarih IS NOT NULL AND CAST(planlanan_tarih AS date) = CAST(@date AS date))
+         OR (planlanan_tarih IS NULL AND istenen_tarih IS NOT NULL AND CAST(istenen_tarih AS date) = CAST(@date AS date))
+       )`,
       { id: requestIds[i], sira: i, date }
     );
   }

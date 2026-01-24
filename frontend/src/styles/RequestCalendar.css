@@ -75,6 +75,32 @@
   opacity: 0.95;
 }
 
+/* Aynı gün sıra: Yukarı / Aşağı */
+.fc-event .fc-custom-event .ev-actions {
+  display: flex;
+  gap: 2px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.fc-event .fc-custom-event .ev-order-btn {
+  padding: 1px 4px;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  border: none;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.35);
+  color: inherit;
+  opacity: 0.9;
+}
+.fc-event .fc-custom-event .ev-order-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.5);
+}
+.fc-event .fc-custom-event .ev-order-btn:focus {
+  outline: none;
+}
+
 .fc-event.status-beklemede {
   background: linear-gradient(135deg, #c9a227 0%, #a67c00 100%) !important;
   color: #1a1606 !important;

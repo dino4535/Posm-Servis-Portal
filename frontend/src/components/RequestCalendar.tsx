@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -29,6 +29,7 @@ interface RequestCalendarProps {
 
 const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClick, onUpdate, onError }) => {
   const calendarRef = useRef<FullCalendar>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const esc = (s: string | undefined) =>
     (s ?? '')
@@ -44,8 +45,18 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
     if (dA !== dB) return dA.localeCompare(dB);
     return (a.planlanan_sira ?? 9999) - (b.planlanan_sira ?? 9999) || a.id - b.id;
   });
+  const byDate = new Map<string, Request[]>();
+  for (const r of sorted) {
+    const d = (r.planlanan_tarih || r.istenen_tarih || '').toString().slice(0, 10);
+    if (!byDate.has(d)) byDate.set(d, []);
+    byDate.get(d)!.push(r);
+  }
   const events = sorted.map((request) => {
     const date = request.planlanan_tarih || request.istenen_tarih;
+    const d = (date || '').toString().slice(0, 10);
+    const group = byDate.get(d) || [];
+    const sameDayIndex = group.indexOf(request);
+    const sameDayTotal = group.length;
     let className = 'status-beklemede';
     if (request.durum === 'Tamamlandı') {
       className = 'status-tamamlandi';
@@ -58,7 +69,7 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
       start: date,
       allDay: true,
       className,
-      extendedProps: { request },
+      extendedProps: { request, sameDayIndex, sameDayTotal, dateStr: d },
       order: request.planlanan_sira ?? 9999,
     };
   });
@@ -124,18 +135,68 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
 
   const eventContent = (arg: any) => {
     const r = arg.event.extendedProps?.request as Request;
+    const sameDayIndex = arg.event.extendedProps?.sameDayIndex ?? 0;
+    const sameDayTotal = arg.event.extendedProps?.sameDayTotal ?? 1;
+    const dateStr = arg.event.extendedProps?.dateStr || '';
     if (!r) return null;
     const bayi = esc(r.bayi_adi) || '-';
     const is = esc(r.yapilacak_is) || '-';
     const acan = esc(r.user_name) || '-';
     const posm = esc(r.posm_name) || '-';
+    let upBtn = '';
+    let downBtn = '';
+    if (sameDayTotal > 1 && dateStr) {
+      if (sameDayIndex > 0) {
+        upBtn = `<button type="button" class="ev-order-btn ev-up" data-request-id="${r.id}" data-action="up" data-date="${esc(dateStr)}" title="Yukarı taşı">▲</button>`;
+      }
+      if (sameDayIndex < sameDayTotal - 1) {
+        downBtn = `<button type="button" class="ev-order-btn ev-down" data-request-id="${r.id}" data-action="down" data-date="${esc(dateStr)}" title="Aşağı taşı">▼</button>`;
+      }
+    }
+    const actionsHtml = upBtn || downBtn ? `<div class="ev-actions">${upBtn}${downBtn}</div>` : '';
     return {
-      html: `<div class="fc-custom-event" data-request-id="${r.id}"><div class="ev-line1">${bayi} – ${is}</div><div class="ev-line2">Açan: ${acan} | POSM: ${posm}</div></div>`,
+      html: `<div class="fc-custom-event" data-request-id="${r.id}" data-date="${esc(dateStr)}"><div class="ev-line1">${bayi} – ${is}</div><div class="ev-line2">Açan: ${acan} | POSM: ${posm}</div>${actionsHtml}</div>`,
     };
   };
 
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const handleOrderClick = (e: MouseEvent) => {
+      const btn = (e.target as HTMLElement)?.closest?.('.ev-order-btn');
+      if (!btn) return;
+      e.stopPropagation();
+      e.preventDefault();
+      const requestId = parseInt(btn.getAttribute('data-request-id') || '', 10);
+      const action = btn.getAttribute('data-action');
+      const date = btn.getAttribute('data-date');
+      if (!requestId || !action || !date) return;
+      (async () => {
+        try {
+          const dayRequests = requests
+            .filter((r) => ((r.planlanan_tarih || r.istenen_tarih) || '').toString().slice(0, 10) === date)
+            .sort((a, b) => (a.planlanan_sira ?? 9999) - (b.planlanan_sira ?? 9999) || a.id - b.id);
+          const idx = dayRequests.findIndex((r) => r.id === requestId);
+          if (idx < 0) return;
+          const arr = [...dayRequests];
+          if (action === 'up' && idx > 0) {
+            [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
+          } else if (action === 'down' && idx < dayRequests.length - 1) {
+            [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]];
+          } else return;
+          await api.put('/requests/reorder', { date, request_ids: arr.map((r) => r.id) });
+          onUpdate?.();
+        } catch (err: any) {
+          onError?.(err.response?.data?.error || 'Sıra güncellenemedi');
+        }
+      })();
+    };
+    el.addEventListener('click', handleOrderClick, true);
+    return () => el.removeEventListener('click', handleOrderClick, true);
+  }, [requests, onUpdate, onError]);
+
   return (
-    <div className="calendar-container">
+    <div ref={containerRef} className="calendar-container">
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin, interactionPlugin]}
