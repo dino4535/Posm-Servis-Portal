@@ -89,7 +89,15 @@ export const getAllRequests = async (
   if (role === 'Admin') {
     // Admin tüm talepleri görebilir
   } else if (role === 'Teknik') {
-    // Teknik kullanıcılar Tüm Talepler ekranında tüm talepleri görebilir (Admin gibi)
+    // Teknik kullanıcılar sadece tanımlı oldukları depo/depoların taleplerini görebilir
+    if (userId) {
+      whereConditions.push(`r.depot_id IN (
+        SELECT depot_id 
+        FROM User_Depots 
+        WHERE user_id = @userId
+      )`);
+      params.userId = userId;
+    }
   } else {
     // User rolü: Sadece kendi taleplerini görebilir
     if (userId) {
@@ -197,7 +205,13 @@ export const getRequestById = async (
     if (role === 'Admin') {
       // Admin tüm talepleri görebilir
     } else if (role === 'Teknik') {
-      // Teknik kullanıcılar tüm talepleri görebilir (Tüm Talepler ile uyumlu)
+      // Teknik kullanıcılar sadece tanımlı oldukları depo/depoların taleplerini görebilir
+      whereConditions += ` AND r.depot_id IN (
+        SELECT depot_id 
+        FROM User_Depots 
+        WHERE user_id = @userId
+      )`;
+      params.userId = userId;
     } else {
       // User rolü: Sadece kendi taleplerini görebilir
       whereConditions += ' AND r.user_id = @userId';
