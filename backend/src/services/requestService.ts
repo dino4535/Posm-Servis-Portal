@@ -106,11 +106,7 @@ export const getAllRequests = async (
     }
   }
 
-  // Taleplerim: Sadece Admin için "kendi açtığım" (user_id). Teknik için depolarındaki Beklemede/Planlandı yeterli (user_id ekleme).
-  if (filters?.my_only && userId && role === 'Admin') {
-    whereConditions.push('r.user_id = @userId');
-    params.userId = userId;
-  }
+  // Taleplerim (my_only): Admin tüm depolardaki Beklemede/Planlandı talepleri görür (user_id yok). Teknik kendi depolarındakini, User kendi açtıklarını görür (role blokları yeterli).
 
   // Filtreler
   if (filters?.user_id) {
