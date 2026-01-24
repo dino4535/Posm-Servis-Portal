@@ -13,6 +13,8 @@ interface Request {
   istenen_tarih: string;
   planlanan_tarih?: string;
   durum: string;
+  user_name?: string;
+  posm_name?: string;
 }
 
 interface RequestCalendarProps {
@@ -23,29 +25,29 @@ interface RequestCalendarProps {
 const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClick }) => {
   const calendarRef = useRef<FullCalendar>(null);
 
+  const esc = (s: string | undefined) =>
+    (s ?? '')
+      .toString()
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
   const events = requests.map((request) => {
     const date = request.planlanan_tarih || request.istenen_tarih;
     let className = 'status-beklemede';
-    
     if (request.durum === 'Tamamlandı') {
       className = 'status-tamamlandi';
     } else if (request.planlanan_tarih) {
       className = 'status-planlandi';
     }
-
-    const title = request.bayi_adi 
-      ? `${request.bayi_adi} - ${request.yapilacak_is}`
-      : request.request_no;
-
     return {
       id: request.id.toString(),
-      title: title.length > 30 ? title.substring(0, 27) + '...' : title,
+      title: request.bayi_adi ? `${request.bayi_adi} - ${request.yapilacak_is}` : request.request_no,
       start: date,
       allDay: true,
-      className: className,
-      extendedProps: {
-        request: request,
-      },
+      className,
+      extendedProps: { request },
     };
   });
 
@@ -53,6 +55,18 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
     if (onEventClick && info.event.extendedProps.request) {
       onEventClick(info.event.extendedProps.request);
     }
+  };
+
+  const eventContent = (arg: any) => {
+    const r = arg.event.extendedProps?.request as Request;
+    if (!r) return null;
+    const bayi = esc(r.bayi_adi) || '-';
+    const is = esc(r.yapilacak_is) || '-';
+    const acan = esc(r.user_name) || '-';
+    const posm = esc(r.posm_name) || '-';
+    return {
+      html: `<div class="fc-custom-event"><div class="ev-line1">${bayi} – ${is}</div><div class="ev-line2">Açan: ${acan} | POSM: ${posm}</div></div>`,
+    };
   };
 
   return (
@@ -64,6 +78,7 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
         locale="tr"
         events={events}
         eventClick={handleEventClick}
+        eventContent={eventContent}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
@@ -75,9 +90,9 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
           week: 'Hafta',
         }}
         height="auto"
-        dayMaxEvents={3}
-        moreLinkText="+ daha fazla"
+        dayMaxEvents={true}
         eventDisplay="block"
+        views={{ dayGridWeek: { contentHeight: 480 } }}
       />
     </div>
   );

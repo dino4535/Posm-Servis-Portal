@@ -59,23 +59,44 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Özel event içeriği: çok satır, kesilmeden okunabilir */
+.fc-event .fc-custom-event {
+  white-space: normal;
+  overflow: visible;
+  line-height: 1.35;
+  font-size: 12px;
+}
+.fc-event .fc-custom-event .ev-line1 {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.fc-event .fc-custom-event .ev-line2 {
+  font-size: 11px;
+  opacity: 0.95;
+}
+
 .fc-event.status-beklemede {
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
-  color: #856404 !important;
+  background: linear-gradient(135deg, #c9a227 0%, #a67c00 100%) !important;
+  color: #1a1606 !important;
 }
 
 .fc-event.status-planlandi {
-  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%) !important;
-  color: #0c5460 !important;
+  background: linear-gradient(135deg, #2a7a8a 0%, #1d5a66 100%) !important;
+  color: #e8f4f6 !important;
 }
 
 .fc-event.status-tamamlandi {
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
-  color: #155724 !important;
+  background: linear-gradient(135deg, #2d7a3e 0%, #1e5c2a 100%) !important;
+  color: #e8f5e9 !important;
 }
 
 .fc-daygrid-day-frame {
-  min-height: 100px;
+  min-height: 120px;
+}
+
+/* Hafta görünümünde gün hücrelerini aşağıya uzat */
+.fc-dayGridWeek-view .fc-daygrid-day-frame {
+  min-height: 280px;
 }
 
 .fc-daygrid-day-number {
