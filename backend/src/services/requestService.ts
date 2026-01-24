@@ -133,11 +133,11 @@ export const getAllRequests = async (
     params.dealerId = filters.dealer_id;
   }
 
-  // Taleplerim (my_only): Beklemede ve Planlandı - backend sabitleriyle (URL/encoding hatası önlenir)
+  // Taleplerim (my_only): Beklemede ve Planlandı - N'' ile NVARCHAR (mssql parametre Unicode sorunları önlenir)
   if (filters?.my_only) {
-    whereConditions.push(`r.durum IN (@durumBeklemede, @durumPlanlandi)`);
-    params.durumBeklemede = REQUEST_STATUS.BEKLEMEDE;
-    params.durumPlanlandi = REQUEST_STATUS.PLANLANDI;
+    const d0 = REQUEST_STATUS.BEKLEMEDE.replace(/'/g, "''");
+    const d1 = REQUEST_STATUS.PLANLANDI.replace(/'/g, "''");
+    whereConditions.push(`r.durum IN (N'${d0}', N'${d1}')`);
   } else if (filters?.durum_in) {
     const durumList = filters.durum_in.split(',').map((s: string) => s.trim()).filter(Boolean);
     if (durumList.length > 0) {
