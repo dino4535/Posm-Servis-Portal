@@ -56,6 +56,9 @@ const MyRequestsPage = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
+      // Taleplerim: sadece kendi taleplerim, yalnızca Beklemede ve Planlandı
+      params.append('my_only', '1');
+      params.append('durum_in', `${REQUEST_STATUS.BEKLEMEDE},${REQUEST_STATUS.PLANLANDI}`);
       if (filters.durum) params.append('durum', filters.durum);
       if (filters.yapilacak_is) params.append('yapilacak_is', filters.yapilacak_is);
       if (filters.start_date) params.append('start_date', filters.start_date);

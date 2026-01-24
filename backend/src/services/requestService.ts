@@ -69,6 +69,8 @@ export interface RequestFilters {
   territory_id?: number;
   dealer_id?: number;
   durum?: string;
+  durum_in?: string; // virgülle ayrılmış: 'Beklemede,Planlandı'
+  my_only?: boolean; // Taleplerim: sadece kullanıcının kendi talepleri (Admin/Teknik için)
   yapilacak_is?: string;
   start_date?: string;
   end_date?: string;
@@ -87,21 +89,19 @@ export const getAllRequests = async (
   if (role === 'Admin') {
     // Admin tüm talepleri görebilir
   } else if (role === 'Teknik') {
-    // Teknik kullanıcılar sadece tanımlı oldukları depo/depoların taleplerini görebilir
-    if (userId) {
-      whereConditions.push(`r.depot_id IN (
-        SELECT depot_id 
-        FROM User_Depots 
-        WHERE user_id = @userId
-      )`);
-      params.userId = userId;
-    }
+    // Teknik kullanıcılar Tüm Talepler ekranında tüm talepleri görebilir (Admin gibi)
   } else {
     // User rolü: Sadece kendi taleplerini görebilir
     if (userId) {
       whereConditions.push('r.user_id = @userId');
       params.userId = userId;
     }
+  }
+
+  // Taleplerim: Admin/Teknik için sadece kendi açtıkları talepler (User zaten user_id ile filtreleniyor)
+  if (filters?.my_only && userId && role !== 'User') {
+    whereConditions.push('r.user_id = @userId');
+    params.userId = userId;
   }
 
   // Filtreler
@@ -125,7 +125,14 @@ export const getAllRequests = async (
     params.dealerId = filters.dealer_id;
   }
 
-  if (filters?.durum) {
+  if (filters?.durum_in) {
+    const durumList = filters.durum_in.split(',').map((s: string) => s.trim()).filter(Boolean);
+    if (durumList.length > 0) {
+      const placeholders = durumList.map((_: string, i: number) => `@durumIn${i}`).join(', ');
+      whereConditions.push(`r.durum IN (${placeholders})`);
+      durumList.forEach((v: string, i: number) => { params[`durumIn${i}`] = v; });
+    }
+  } else if (filters?.durum) {
     whereConditions.push('r.durum = @durum');
     params.durum = filters.durum;
   }
@@ -190,13 +197,7 @@ export const getRequestById = async (
     if (role === 'Admin') {
       // Admin tüm talepleri görebilir
     } else if (role === 'Teknik') {
-      // Teknik kullanıcılar sadece tanımlı oldukları depo/depoların taleplerini görebilir
-      whereConditions += ` AND r.depot_id IN (
-        SELECT depot_id 
-        FROM User_Depots 
-        WHERE user_id = @userId
-      )`;
-      params.userId = userId;
+      // Teknik kullanıcılar tüm talepleri görebilir (Tüm Talepler ile uyumlu)
     } else {
       // User rolü: Sadece kendi taleplerini görebilir
       whereConditions += ' AND r.user_id = @userId';

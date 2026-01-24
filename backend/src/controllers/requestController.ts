@@ -26,6 +26,8 @@ export const getAllRequestsController = async (
     if (req.query.territory_id) filters.territory_id = parseInt(req.query.territory_id as string, 10);
     if (req.query.dealer_id) filters.dealer_id = parseInt(req.query.dealer_id as string, 10);
     if (req.query.durum) filters.durum = req.query.durum as string;
+    if (req.query.durum_in) filters.durum_in = req.query.durum_in as string;
+    if (req.query.my_only === '1' || req.query.my_only === 'true') filters.my_only = true;
     if (req.query.yapilacak_is) filters.yapilacak_is = req.query.yapilacak_is as string;
     if (req.query.start_date) filters.start_date = req.query.start_date as string;
     if (req.query.end_date) filters.end_date = req.query.end_date as string;
