@@ -1,6 +1,8 @@
 import { useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import api from '../services/api';
 import '../styles/RequestCalendar.css';
 
 interface Request {
@@ -20,9 +22,11 @@ interface Request {
 interface RequestCalendarProps {
   requests: Request[];
   onEventClick?: (request: Request) => void;
+  onUpdate?: () => void;
+  onError?: (msg: string) => void;
 }
 
-const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClick }) => {
+const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClick, onUpdate, onError }) => {
   const calendarRef = useRef<FullCalendar>(null);
 
   const esc = (s: string | undefined) =>
@@ -57,6 +61,27 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
     }
   };
 
+  const handleEventDrop = async (info: any) => {
+    const id = info.event.id;
+    const start = info.event.start;
+    if (!id || !start) {
+      info.revert();
+      onError?.('Tarih alınamadı');
+      return;
+    }
+    const y = start.getFullYear();
+    const m = start.getMonth() + 1;
+    const d = start.getDate();
+    const planlanan_tarih = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    try {
+      await api.put(`/requests/${id}`, { planlanan_tarih });
+      onUpdate?.();
+    } catch (e: any) {
+      info.revert();
+      onError?.(e.response?.data?.error || 'Tarih güncellenemedi');
+    }
+  };
+
   const eventContent = (arg: any) => {
     const r = arg.event.extendedProps?.request as Request;
     if (!r) return null;
@@ -73,11 +98,13 @@ const RequestCalendar: React.FC<RequestCalendarProps> = ({ requests, onEventClic
     <div className="calendar-container">
       <FullCalendar
         ref={calendarRef}
-        plugins={[dayGridPlugin]}
+        plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         locale="tr"
         events={events}
+        editable={true}
         eventClick={handleEventClick}
+        eventDrop={handleEventDrop}
         eventContent={eventContent}
         headerToolbar={{
           left: 'prev,next today',

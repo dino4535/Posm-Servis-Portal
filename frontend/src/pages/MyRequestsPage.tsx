@@ -275,6 +275,8 @@ const MyRequestsPage = () => {
         <RequestCalendar
           requests={allRequests}
           onEventClick={handleRequestClick}
+          onUpdate={fetchRequests}
+          onError={showError}
         />
       )}
 
