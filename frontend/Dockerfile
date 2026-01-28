@@ -18,6 +18,6 @@ ENV VITE_API_URL=/api
 # Port expose et (vite.config.ts'de 4005 olarak ayarlı)
 EXPOSE 4005
 
-# Development modunda çalıştır (hot reload ile)
+# Development modunda çalıştır (vite.config'de hmr kapalı - WebSocket hatası önlenir)
 # --host 0.0.0.0 tüm network interface'lerden erişime izin verir
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "4005"]

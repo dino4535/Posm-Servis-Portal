@@ -53,6 +53,8 @@ services:
       - "4005:4005"
     environment:
       - VITE_API_URL=${VITE_API_URL:-/api}
+      # posm.dinogida.com.tr'de WebSocket hatasını gidermek için: nginx'te WebSocket proxy varsa bu host kullanılır
+      - VITE_HMR_HOST=${VITE_HMR_HOST:-}
     volumes:
       - ./frontend/src:/app/src:ro
       - frontend-node-modules:/app/node_modules
