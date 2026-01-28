@@ -30,8 +30,9 @@ app.use(
   })
 );
 
-// Trust proxy - Gerçek IP adresini almak için
-app.set('trust proxy', true);
+// Trust proxy - Nginx gibi tek reverse proxy arkasında gerçek client IP (X-Forwarded-For) kullanılır.
+// true yerine 1: sadece ilk proxy'e güvenilir; express-rate-limit ERR_ERL_PERMISSIVE_TRUST_PROXY hatasını önler.
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet({
