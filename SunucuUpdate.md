@@ -1,7 +1,17 @@
 cd ~/posm
 git pull origin main
 
-# Sadece KOD değişikliği (package.json aynı):
+# --- ONCELIK: "[vite] failed to connect to websocket" hatasi aliyorsaniz ---
+# Asagidaki 3 satiri calistirin (production frontend = WebSocket yok, hata biter):
+#   docker-compose -f docker-compose.yml -f docker-compose.prod-frontend.yml build frontend
+#   docker-compose -f docker-compose.yml -f docker-compose.prod-frontend.yml up -d --force-recreate frontend
+# Devaminda sadece frontend degisti. Backend ager guncellendiyse en alttaki backend komutlarini da calistirin.
+
+# Bu guncelleme icin (vite/docker degisiklikleri, prod-frontend KULLANMIYORSANIZ):
+docker-compose build frontend
+docker-compose up -d --force-recreate frontend
+
+# Sadece KOD degisikligi (package.json ayni, image degismedi):
 # docker-compose restart frontend
 # docker-compose restart backend
 
@@ -17,18 +27,13 @@ docker-compose build backend
 docker-compose run --rm --no-deps backend npm install
 docker-compose up -d --force-recreate backend
 
-# --- WebSocket / "[vite] failed to connect to websocket" hatası (posm.dinogida.com.tr girişte) ---
-# Sebep: Tarayıcı posm.dinogida.com.tr'den açılıyor, Vite HMR localhost:4005 veya yanlış adrese bağlanmaya çalışıyor.
+# --- WebSocket / "[vite] failed to connect to websocket" hatasini KALDIRMAK icin ---
+# Production frontend kullanin (Vite dev server yok, sadece build edilmis statik dosyalar).
+# Asagidaki komutlari calistirin (proje dizininde: cd ~/posm):
 #
-# Çözüm 1 (önerilen): Production build ile sun. WebSocket yok, hata olmaz.
-#   Frontend'te: npm run build -> dist/ çıkar. Nginx'te root veya alias ile dist'i verin.
-#   Veya ayrı bir "frontend-static" servisi ile dist'i serve edin; canlıda Vite dev container'ı kullanmayın.
+#   git pull origin main
+#   docker-compose -f docker-compose.yml -f docker-compose.prod-frontend.yml build frontend
+#   docker-compose -f docker-compose.yml -f docker-compose.prod-frontend.yml up -d --force-recreate frontend
 #
-# Çözüm 2: Nginx'te WebSocket proxy ekleyin, frontend container'a HMR host verin.
-#   docker-compose'da frontend environment'a ekleyin: VITE_HMR_HOST=posm.dinogida.com.tr
-#   Nginx'te / konumunda:
-#     proxy_http_version 1.1;
-#     proxy_set_header Upgrade $http_upgrade;
-#     proxy_set_header Connection "upgrade";
-#     proxy_set_header Host $host;
-#     proxy_cache_bypass $http_upgrade;
+# Bundan sonra posm.dinogida.com.tr sayfasi WebSocket hatasi vermeden acilir.
+# Frontend kodu degistiginde yine ayni 3 komutu (pull + build frontend + up) calistirin.

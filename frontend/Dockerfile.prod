@@ -1,0 +1,32 @@
+# Production: build + statik dosya servisi (WebSocket / Vite HMR yok)
+# ---
+# Build aşaması
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+# Build sırasında API adresi (nginx /api proxy ile aynı origin)
+ARG VITE_API_URL=/api
+ENV VITE_API_URL=$VITE_API_URL
+
+RUN npm run build
+
+# ---
+# Servis aşaması: sadece dist + hafif static server
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN npm install -g serve@14
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 4005
+
+# -s: SPA fallback, -l: port. Docker'da genelde 0.0.0.0'dan dinler.
+CMD ["serve", "-s", "dist", "-l", "4005"]
