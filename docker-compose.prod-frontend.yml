@@ -1,0 +1,21 @@
+# WebSocket hatasını kaldırmak için: frontend'i production build ile çalıştırır.
+# Vite dev server yerine build edilmiş statik dosyalar serve edilir; HMR/WebSocket yok.
+#
+# Kullanım (sunucuda):
+#   docker-compose -f docker-compose.yml -f docker-compose.prod-frontend.yml up -d --build frontend
+#   (öncesinde: git pull, sonra build + up)
+#
+# Not: Bu override frontend için volume'ları kaldırır (kaynak mount yok, sadece image içindeki dist).
+
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        - VITE_API_URL=${VITE_API_URL:-/api}
+    volumes: []
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-/api}
