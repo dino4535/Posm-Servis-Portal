@@ -20,6 +20,25 @@ export interface ImportResult {
   errors: string[];
 }
 
+/** Excel başlıklarını normalize eder: "Bayi Kodu" -> "bayi_kodu", "depo" -> "depo" */
+const normalizeHeader = (key: string): string =>
+  String(key || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_]/g, '');
+
+/** Bir satırdan normalize key ile değer döner; key yoksa diğer olası yazımlara bakar */
+const getCell = (row: Record<string, unknown>, ...keys: string[]): unknown => {
+  for (const k of keys) {
+    const n = normalizeHeader(k);
+    for (const [h, v] of Object.entries(row)) {
+      if (normalizeHeader(h) === n && v !== undefined && v !== null && v !== '') return v;
+    }
+  }
+  return undefined;
+};
+
 export const bulkImportDealers = async (
   fileBuffer: Buffer
 ): Promise<ImportResult> => {
@@ -42,33 +61,45 @@ export const bulkImportDealers = async (
   // Mevcut bayi kodları cache
   const existingDealerCodes = new Set<string>();
 
-  // Önce mevcut bayi kodlarını yükle
-  const existingDealers = await query<{ code: string }>(
-    `SELECT code FROM Dealers WHERE is_active = 1`
-  );
-  existingDealers.forEach((d) => existingDealerCodes.add(d.code));
+  // Önce mevcut bayi kodlarını yükle (is_active kolonu yoksa tüm bayileri al)
+  try {
+    const existingDealers = await query<{ code: string }>(
+      `SELECT code FROM Dealers WHERE (is_active = 1 OR is_active IS NULL)`
+    );
+    existingDealers.forEach((d) => existingDealerCodes.add(String(d.code).trim()));
+  } catch {
+    const existingDealers = await query<{ code: string }>(`SELECT code FROM Dealers`);
+    existingDealers.forEach((d) => existingDealerCodes.add(String(d.code).trim()));
+  }
 
   for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
+    const row = rows[i] as Record<string, unknown>;
     const rowNum = i + 2; // Excel satır numarası (header + 1-based)
 
     try {
-      // Veri doğrulama
-      if (!row.depo || !row.territory_kodu || !row.territory_adi || !row.bayi_kodu || !row.bayi_adi) {
+      const depoVal = getCell(row, 'depo', 'depo adı');
+      const territoryCodeVal = getCell(row, 'territory_kodu', 'territory kodu', 'territorykodu');
+      const territoryAdiVal = getCell(row, 'territory_adi', 'territory adı', 'territoryadi');
+      const bayiKoduVal = getCell(row, 'bayi_kodu', 'bayi kodu', 'bayikodu');
+      const bayiAdiVal = getCell(row, 'bayi_adi', 'bayi adı', 'bayiadi');
+
+      if (!depoVal || !territoryCodeVal || !territoryAdiVal || !bayiKoduVal || !bayiAdiVal) {
         result.errors.push(`Satır ${rowNum}: Eksik veri (Depo, Territory Kodu, Territory Adı, Bayi Kodu, Bayi Adı zorunludur)`);
         result.skipped++;
         continue;
       }
 
-      const depoName = String(row.depo).trim();
-      const territoryCode = String(row.territory_kodu).trim();
-      const territoryName = String(row.territory_adi).trim();
-      const dealerCode = String(row.bayi_kodu).trim();
-      const dealerName = String(row.bayi_adi).trim();
-      const address = row.adres ? String(row.adres).trim() : null;
-      const phone = row.telefon ? String(row.telefon).trim() : null;
-      const latitude = row.enlem ? parseFloat(String(row.enlem)) : null;
-      const longitude = row.boylam ? parseFloat(String(row.boylam)) : null;
+      const depoName = String(depoVal).trim();
+      const territoryCode = String(territoryCodeVal).trim();
+      const territoryName = String(territoryAdiVal).trim();
+      const dealerCode = String(bayiKoduVal).trim();
+      const dealerName = String(bayiAdiVal).trim();
+      const address = getCell(row, 'adres') != null ? String(getCell(row, 'adres')).trim() : null;
+      const phone = getCell(row, 'telefon') != null ? String(getCell(row, 'telefon')).trim() : null;
+      const enlemVal = getCell(row, 'enlem');
+      const boylamVal = getCell(row, 'boylam');
+      const latitude = enlemVal != null && enlemVal !== '' ? parseFloat(String(enlemVal)) : null;
+      const longitude = boylamVal != null && boylamVal !== '' ? parseFloat(String(boylamVal)) : null;
 
       // Bayi kodu zaten varsa atla
       if (existingDealerCodes.has(dealerCode)) {

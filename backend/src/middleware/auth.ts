@@ -32,7 +32,7 @@ export const authenticate = async (
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       console.error('[AUTH] Token bulunamadı - Header:', authHeader);
-      throw new UnauthorizedError('Token bulunamadı');
+      return next(new UnauthorizedError('Token bulunamadı'));
     }
 
     const token = authHeader.substring(7);
